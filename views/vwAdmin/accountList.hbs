@@ -1,0 +1,103 @@
+<div class="card">
+  <div class="card-header h4 bg-info text-white">
+    Quản lý 
+    {{#if (Equal permission 0)}}
+        Độc giả
+    {{/if}}
+    {{#if (Equal permission 1)}}
+        Phóng viên
+    {{/if}}
+    {{#if (Equal permission 2)}}
+        Biên tập viên
+    {{/if}}
+  </div>
+  <div class="card-body">
+    <!-- Form thêm tag -->
+    <a href="/admin/{{#if (Equal permission 0)}}reader{{/if}}{{#if (Equal permission 1)}}writer{{/if}}{{#if (Equal permission 2)}}editor{{/if}}/register" class="btn btn-primary " role="button" aria-disabled="true">thêm tài khoản <i class="bi bi-person-plus"></i> </a>
+    <hr>
+    <h5>Danh sách tag</h5>
+    <!-- Hiển thị danh sách tags -->
+    <table class="table table-striped border">
+        <thead class="bg-warning text-dark">
+            <tr>
+                <th>#</th>
+                <th>Tên tài khoản</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each users}}
+            <tr>
+                <td>{{this.UserID}}</td>
+                <td>{{this.UserName}}</td>
+                <td>
+                    <!-- Form gia hạn cho độc giả -->
+                    {{#if (Equal this.Permission 0)}}
+                    <form method="POST" action="/admin/reader/extend" class="d-inline">
+                        <input type="hidden" name="userID" value="{{this.UserID}}">
+                        <button type="submit" class="btn btn-warning">
+                            Gia hạn 7 ngày
+                            <i class="bi bi-pencil-fill"></i>
+                        </button>
+                    </form>
+                    {{/if}}
+
+                    <!-- tới danh sách chuyên mục mà editor quản lý -->
+                    {{#if (Equal this.Permission 2)}}
+                    <a href="/admin/editor/categories?editorID={{UserID}}" class="btn btn-link">
+                        Chuyên mục quản lý
+                       <i class="bi bi-box-arrow-up-right"></i>
+                    </a>
+                    {{/if}}
+
+                    <!-- Form xóa-->
+                    <form method="POST" action="/admin/{{#if (Equal Permission 0)}}reader{{/if}}{{#if (Equal Permission 1)}}writer{{/if}}{{#if (Equal Permission 2)}}editor{{/if}}/delete" class="d-inline">
+                        <input type="hidden" name="userID" value="{{this.UserID}}">
+                        <button type="submit" class="btn btn-danger">
+                            Xóa
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </form>
+                    <!-- xem chi tiết tài khoản-->
+                    <a href="/admin/{{#if (Equal Permission 0)}}reader{{/if}}{{#if (Equal Permission 1)}}writer{{/if}}{{#if (Equal Permission 2)}}editor{{/if}}/profile?id={{UserID}}" class="btn btn-primary " role="button" aria-disabled="true">chi tiết <i class="bi bi-pencil-square"></i> </a>
+                </td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+  </div>
+  <div class="card-footer d-flex justify-content-center">
+    {{#if needPagination}}
+    <nav aria-label="Page navigation example">
+  <ul class="pagination">
+    <!-- Nút Previous -->
+    <li class="page-item {{#if (Equal this.current_page 1)}}disabled{{/if}}">
+      <a class="page-link" 
+         href="/admin/{{#if (Equal permission 0)}}reader{{/if}}{{#if (Equal permission 1)}}writer{{/if}}{{#if (Equal permission 2)}}editor{{/if}}?page={{Decrement this.current_page}}" >
+        Previous
+      </a>
+    </li>
+      <!-- Các số trang -->
+      {{#each this.pageNumbers}}
+      {{#if active}}
+      <li class="page-item active">
+        <a class="page-link" href="#">{{value}}</a>
+      </li>
+      {{else}}
+      <li class="page-item">
+        <a class="page-link" href="/admin/{{#if (Equal ../permission 0)}}reader{{/if}}{{#if (Equal ../permission 1)}}writer{{/if}}{{#if (Equal ../permission 2)}}editor{{/if}}?&page={{value}}">{{value}}</a>
+      </li>
+      {{/if}}
+      {{/each}}
+      <!--Nút next-->
+      <li class="page-item {{#if (Equal this.current_page totalPages)}}disabled{{/if}}">
+      <a class="page-link" 
+         href="/admin/{{#if (Equal permission 0)}}reader{{/if}}{{#if (Equal permission 1)}}writer{{/if}}{{#if (Equal permission 2)}}editor{{/if}}?page={{Increment this.current_page}}" >
+        Next
+      </a>
+    </li>
+    </ul>
+</nav>
+  {{/if}}
+  </div>
+</div>

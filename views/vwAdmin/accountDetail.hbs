@@ -1,0 +1,68 @@
+<div class="card text-center">
+  <div class="card-header bg bg-info text-white h3">
+    Hồ sơ người dùng
+  </div>
+  <div class="card-body text-left bg bg-light">
+    <div class="row d-flex justify-content-center">
+        <img src="http://localhost:3030/static/imgs/profile.jpg" class="img-thumbnail" alt="..." style="width: 15vw;">
+    </div>
+    <div class="row d-flex justify-content-center m-2">
+        <a href="/admin/{{#if (Equal this.user.Permission 0)}}reader{{/if}}{{#if (Equal this.user.Permission 1)}}writer{{/if}}{{#if (Equal this.user.Permission 2)}}editor{{/if}}" class="btn btn-success ml-2" role="button" aria-pressed="true">
+           <i class="bi bi-box-arrow-in-left"></i>
+        </a>
+    </div>
+    <form>
+        <div class="h4">
+            Vai trò: 
+            {{#if (Equal this.user.Permission 0)}}
+                <span class="badge badge-secondary">Độc giả</span>
+            {{/if}}
+
+            {{#if (Equal this.user.Permission 1)}}
+                <span class="badge badge-info">Phóng viên</span>
+            {{/if}}
+
+            {{#if (Equal this.user.Permission 2)}}
+                <span class="badge badge-success">Biên tập viên</span>
+            {{/if}}
+
+            {{#if (Equal this.user.Permission 3)}}
+                <span class="badge badge-primary">Quản trị viên</span>
+            {{/if}}
+        </div>
+        <hr>
+        <div class="form-group">
+            <label for="txtNgaydk">Ngày đăng ký</label>
+            <input type="text" name="ngaydk" id="txtNgaydk" class="form-control" placeholder="" value="{{this.user.NgayDKPremium}}" readonly/>
+        </div>
+        {{#if (Equal this.user.Permission 0)}}
+        <div class="form-group">
+            <label for="txtNgayhh">Ngày hết hạn</label>
+            <input type="text" name="ngayhh" id="txtNgayhh" class="form-control" placeholder="" value="{{this.user.NgayHHPremium}}" readonly/>
+        </div>
+        {{/if}}
+        <div class="form-group">
+            <label for="txtName">Họ và tên</label>
+            <input type="text" name="Fullname" id="txtName" class="form-control" placeholder="" value="{{this.user.Fullname}}" readonly/>
+        </div>
+        <div class="form-group">
+            <label for="txtAddress">Địa chỉ</label>
+            <input type="text" class="form-control" id="txtAddress" name="Address" placeholder="" value="{{this.user.Address}}" readonly/>
+        </div>
+        <div class="form-group">
+            <label for="txtPhone">Số điện thoại</label>
+            <input type="text" class="form-control" id="txtPhone" name="Phone" placeholder="" value="{{this.user.Phone}}" readonly/>
+        </div>
+        <div class="form-group">
+            <label for="txtEmail">Email</label>
+            <input type="email" name="Email" id="txtEmail" class="form-control" placeholder="" value="{{this.user.Email}}" readonly>
+        </div>
+        <div class="form-group">
+            <label for="txtDOB">Ngày sinh</label>
+            <input type="text" name="DayOfBirth" id="txtDOB" class="form-control" placeholder="" value="{{this.user.DayOfBirth}}" readonly>
+        </div>
+    </form>
+    </div>
+  <div class="card-footer text-center">
+  </div>
+</div>

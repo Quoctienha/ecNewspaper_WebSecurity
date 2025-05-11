@@ -1,0 +1,363 @@
+{{#section 'css'}}
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.min.css">
+  <style>
+th {
+    vertical-align: middle; /* Vertically center the content */
+    text-align: center; /* Horizontally center the text */
+
+}
+
+  </style>
+{{/section}}
+{{#section 'js'}}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.full.min.js"></script>
+<script>
+     // Cài đặt datetimepicker
+  $('#txtDOB').datetimepicker({
+    timepicker: false,
+    format: 'd/m/Y H:i:s',
+    mask: true
+  });
+
+</script>
+<script>
+    let currentPostId; // Variable to store the selected Post ID
+    // Display approval section for the selected post
+    function approvePost(PostId) {
+      currentPostId = PostId; // Save the post ID globally
+
+      document.getElementById("approvalSection").style.display = "block"; // Show the section
+    }
+
+    // Handle approval confirmation
+    document.getElementById("confirmApprove").addEventListener("click", async (e) => {
+      e.preventDefault(); // Prevent default form behavior (avoids refreshing)
+
+      const timePublic = document.getElementById("txtDOB").value; // Get time input
+      alert(timePublic);
+      if (!timePublic) {
+        alert("Vui lòng chọn thời gian xuất bản."); // Alert if time is empty
+        return;
+      }
+
+      try {
+        const response = await fetch("/admin/post/approve", { // Send POST request
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            PostID: currentPostId, // Use stored Post ID
+            TimePublic: timePublic,
+          }),
+        });
+
+        if (response.ok) {
+          alert("Bài viết đã được duyệt."); // Success message
+          location.reload(); // Reload page to reflect changes
+        } else {
+          const message = await response.text();
+          alert("Lỗi: " + message); // Show error from server
+          
+        }
+      } catch (error) {
+        console.error("Error approving post:", error); // Log error
+        alert("Đã xảy ra lỗi khi duyệt bài viết."); // Show alert for errors
+      } finally {
+        document.getElementById("approvalSection").style.display = "none"; // Hide section
+        document.getElementById("txtDOB").value = ""; // Clear input field
+      }
+    });
+    function rejectPost(PostId) {
+      currentPostId = PostId; // Store the current Post ID
+      document.getElementById("rejectionReasonSection").style.display = "block"; // Show the rejection reason input
+    }
+
+    // Confirm rejection with reason
+    document.getElementById("confirmReject").addEventListener("click", async () => {
+      const reason = document.getElementById("rejectionReason").value; // Get the reason from the input
+      alert(reason);
+      if (!reason) {
+        alert("Vui lòng nhập lý do từ chối.");
+        return;
+      }
+
+      try {
+        const response = await fetch("/admin/post/reject", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            PostID: currentPostId, // Use the stored Post ID
+            reason: reason, // Include the reason
+          }),
+        });
+
+        if (response.ok) {
+          alert("Bài viết đã bị từ chối.",reason);
+          location.reload(); // Refresh the page
+        } else {
+          const message = await response.text();
+          alert("Lỗi: " + message);
+        }
+      } catch (error) {
+        console.error("Error denying post:", error);
+        alert("Đã xảy ra lỗi khi từ chối bài viết.");
+      } finally {
+        document.getElementById("rejectionReasonSection").style.display = "none"; // Hide the input section after processing
+        document.getElementById("rejectionReason").value = ""; // Clear the input
+      }
+    });
+
+</script>
+<script>
+   function toggleSection(sectionId, buttonId) {
+       // Hide all sections
+       const sections = document.querySelectorAll(".drafts-table");
+       sections.forEach(section => section.style.display = "none");
+
+       // Show the selected section
+       document.getElementById(sectionId).style.display = "block";
+
+       // Remove active state from all buttons
+       const buttons = document.querySelectorAll(".btn-group .btn");
+       buttons.forEach(button => {
+           button.classList.remove("btn-primary", "active");
+           button.classList.add("btn-secondary");
+       });
+
+       // Add active state to the clicked button
+       const activeButton = document.getElementById(buttonId);
+       activeButton.classList.add("btn-primary", "active");
+       activeButton.classList.remove("btn-secondary");
+
+       // Hide the content section
+       hideContent();
+   }
+
+   function viewContent(button) {
+       const content = button.getAttribute("data-content"); // Retrieve the content from the data attribute
+
+       const contentSection = document.getElementById("selectedPostContent");
+       const contentDiv = document.getElementById("postContent");
+
+       if (content) {
+           // Decode and display the web-formatted content
+           contentDiv.innerHTML = content; // Use innerHTML to render HTML or rich text
+           contentSection.style.display = "block"; // Make the content section visible
+
+           // Scroll to the content section
+           contentSection.scrollIntoView({ behavior: 'smooth' });
+       } else {
+           contentDiv.textContent = "Không có nội dung.";
+           contentSection.style.display = "none";
+       }
+   }
+
+   function hideContent() {
+       const contentSection = document.getElementById("selectedPostContent");
+       const contentDiv = document.getElementById("postContent");
+
+       contentDiv.innerHTML = ""; // Clear content
+       contentSection.style.display = "none"; // Hide the section
+   }
+</script>
+{{/section}}
+<div class="card ">
+  <div class="card-header text-center h3 bg bg-info text-white">
+    Quản lý bài viết "{{status}}"
+  </div>
+  <div class="card-body p-0 pt-3">
+    {{#if posts}}
+    <!-- Display the list of posts -->
+    <table class="table table-striped border m-0">
+        <thead class="bg bg-warning ">
+            <tr style="text-align: center middle; ">
+                <th>#</th>
+                <th>Tiêu đề</th>
+                <th>Danh mục</th>
+                <th>Chuyên mục phụ</th>
+                <th>Ngày đăng</th>
+                <th>Trạng thái</th>
+                {{#if (Stringcompare status "Chờ duyệt")}}
+                    <th>Hành động</th>
+                {{/if}}
+                {{#if (Stringcompare status "Từ chối")}}
+                    <th>Hành động</th>
+                {{/if}}
+                {{#if (Stringcompare status "Chờ duyệt")}}
+                <th>Duyệt</th>
+                <th>Từ chối</th>
+                {{/if}}
+                {{#if (Stringcompare status "Từ chối")}}
+                <th>Duyệt</th>
+                {{/if}}
+                {{#if (Stringcompare status "Đã xuất bản")}}
+                   <th></th>
+                {{/if}}
+                 {{#if (Stringcompare status "Chờ xuất bản")}}
+                   <th></th>
+                {{/if}}
+                <th>Xem nội dung bài viết</th>
+            </tr>
+        </thead>
+        <tbody>
+     
+            {{#each posts}}
+            <tr>
+                <td>{{this.PostID}}</td>
+                <td>{{this.PostTitle}}</td>
+                <td>{{this.CName}}</td>
+                <td>{{this.SCName}}</td>
+                <td>{{this.TimePost}}</td>
+                <td>{{this.StatusPost}}</td>
+                <td>
+                    <!-- Link to edit post -->
+                      {{#if (Stringcompare this.StatusPost "Chờ duyệt")}}
+                              <form method="POST" action="/admin/post/delete" class="d-inline"
+                              onsubmit="return confirm('Bạn có chắc muốn xóa bài viết này?');">
+                              <input type="hidden" name="PostID" value="{{this.PostID}}">
+                              <button type="submit" class="btn btn-danger">
+                                Xóa
+                                <i class="bi bi-trash"></i>
+                              </button>
+                           </form>
+                      {{#if (Stringcompare this.UID ../userUID) }}
+                        
+                              <a href="/admin/post/edit/{{this.PostID}}" class="btn btn-warning" aria-label="Sửa bài viết">
+                              Sửa   
+                              <i class="bi bi-pencil-fill "></i>
+                              </a>
+
+
+                        {{/if}}
+                      {{/if}}
+                     
+                  
+                     {{#if (Stringcompare this.StatusPost "Từ chối")}}
+          
+                           <form method="POST" action="/admin/post/delete" class="d-inline"
+                              onsubmit="return confirm('Bạn có chắc muốn xóa bài viết này?');">
+                              <input type="hidden" name="PostID" value="{{this.PostID}}">
+                              <button type="submit" class="btn btn-danger">
+                                Xóa
+                                <i class="bi bi-trash"></i>
+                              </button>
+                           </form>
+                            {{#if (Stringcompare this.UID ../userUID) }}
+                      
+                              <a href="/admin/post/edit/{{this.PostID}}" class="btn btn-warning" aria-label="Sửa bài viết">
+                              Sửa   
+                              <i class="bi bi-pencil-fill "></i>
+                              </a>
+                             {{/if}}
+                 
+                        <td>
+                          <button 
+                          onclick="approvePost({{this.PostID}})" 
+                          class="btn btn-success btn-sm">
+                          Duyệt
+                        </button>
+                        </td>
+                   
+                        
+                    {{/if}}
+                    <!-- Form to delete post -->
+                   
+
+                </td>
+                  {{#if (Stringcompare this.StatusPost "Chờ duyệt")}}
+                    <td> 
+                            <button 
+                              type="button" 
+                              onclick="approvePost({{this.PostID}})" 
+                              class="btn btn-success btn-sm">
+                              Duyệt
+                            </button>             
+                    </td>
+                    <td>
+                      </button>
+                            <button 
+                              onclick="rejectPost({{this.PostID}})" 
+                              class="btn btn-danger btn-sm">
+                              Từ chối
+                        </button>
+                    </td>
+                {{/if}}
+                <td>
+                   <button 
+                    class="btn btn-info btn-sm" 
+                    data-content="{{this.Content}}" 
+                    onclick="viewContent(this)">
+                    Xem nội dung
+                  </button>
+                </td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+    {{else}}
+     <div class="alert alert-info m-0 text-center" role="alert">
+        Hiện tại không có bài viết nào của bạn ở trạng thái này
+      </div>
+    {{/if}}
+  </div>
+  <div class="card-footer d-flex justify-content-center">
+    {{#if needPagination}}
+    <nav aria-label="Page navigation example">
+    <ul class="pagination">
+        <!-- Nút Previous -->
+    <li class="page-item {{#if (Equal this.current_page 1)}}disabled{{/if}}">
+      <a class="page-link" 
+         href="/admin/post?status={{status}}&page={{Decrement this.current_page}}" >
+        Previous
+      </a>
+    </li>
+      <!-- Các số trang -->
+      {{#each this.pageNumbers}}
+      {{#if active}}
+      <li class="page-item active">
+        <a class="page-link" href="#">{{value}}</a>
+      </li>
+      {{else}}
+      <li class="page-item">
+        <a class="page-link" href="/admin/post?status={{../status}}&page={{value}}">{{value}}</a>
+      </li>
+      {{/if}}
+      {{/each}}
+      <!--Nút next-->
+      <li class="page-item {{#if (Equal this.current_page totalPages)}}disabled{{/if}}">
+      <a class="page-link" 
+         href="/admin/post?status={{status}}&page={{Increment this.current_page}}" >
+        Next
+      </a>
+    </li>
+    </ul>
+    </nav>
+  {{/if}}
+  </div>
+  <div id="selectedPostContent" style="margin-top: 20px; border: 1px solid #ddd; padding: 10px; display: none;">
+  <button onclick="hideContent()" class="btn btn-secondary btn-sm" style="float: right;">Ẩn</button>
+  <h3>Nội dung bài viết</h3>
+  <p id="postContent">Chưa có nội dung được chọn.</p>
+</div>
+<!-- Rejection Reason Input -->
+<div id="rejectionReasonSection" style="display: none; margin-top: 20px;">
+  <label for="rejectionReason">Lý do từ chối:</label>
+  <input type="text" name="rejectReason" id="rejectionReason" class="form-control" placeholder="Nhập lý do từ chối">
+  <button id="confirmReject" class="btn btn-danger mt-2">Xác nhận từ chối</button>
+</div>
+<!-- Premium and TimePublic Selection -->
+<div id="approvalSection" style="display: none; margin-top: 20px;">
+    <div class="form-group">
+      <label for="txtDOB">Ngày xuất bản</label>
+      <input type="text" class="form-control" id="txtDOB" name="raw_dob" required />
+    </div>
+
+  <button id="confirmApprove" class="btn btn-success mt-2">Xác nhận duyệt</button>
+</div>
+</div>
+
+
+

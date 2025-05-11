@@ -1,0 +1,96 @@
+<div class="card">
+  <div class="card-header h4 bg-info text-white">
+    Quản lý thẻ (Tags)
+  </div>
+  <div class="card-body">
+    <!-- Form thêm tag -->
+    <h5>Thêm thẻ mới</h5>
+    <form method="POST" action="/admin/tags/add">
+        <div class="form-group mb-2">
+            <label for="TName">Tên thẻ</label>
+            <input type="text" name="TName" id="TName" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-success m-0">
+            Thêm
+            <i class="bi bi-plus-lg"></i>
+        </button>
+    </form>
+    <hr>
+    <h5>Danh sách tag</h5>
+    <!-- Hiển thị danh sách tags -->
+    <table class="table table-striped border">
+        <thead class="bg-warning text-dark">
+            <tr>
+                <th>#</th>
+                <th>Tên thẻ</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each tags}}
+            <tr>
+                <td>{{this.TagID}}</td>
+                <td>{{this.TName}}</td>
+                <td>
+                    <!-- Form sửa tag -->
+                    <form method="POST" action="/admin/tags/edit" class="d-inline">
+                        <input type="hidden" name="TagID" value="{{this.TagID}}">
+                        <input type="text" name="TName" value="{{this.TName}}" class="form-control d-inline w-50">
+                        <button type="submit" class="btn btn-warning">
+                            Sửa
+                            <i class="bi bi-pencil-fill"></i>
+                        </button>
+                    </form>
+
+                    <!-- Form xóa tag -->
+                    <form method="POST" action="/admin/tags/delete" class="d-inline">
+                        <input type="hidden" name="TagID" value="{{this.TagID}}">
+                        <button type="submit" class="btn btn-danger">
+                            Xóa
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+  </div>
+  <div class="card-footer d-flex justify-content-center">
+    {{#if needPagination}}
+    <nav aria-label="Page navigation example">
+  <ul class="pagination">
+    <!-- Nút Previous -->
+    <li class="page-item {{#if (Equal this.current_page 1)}}disabled{{/if}}">
+      <a class="page-link" 
+         href="/admin/tags?page={{Decrement this.current_page}}" >
+        Previous
+      </a>
+    </li>
+      <!-- Các số trang -->
+      {{#each this.pageNumbers}}
+      {{#if active}}
+      <li class="page-item active">
+        <a class="page-link" href="#">{{value}}</a>
+      </li>
+      {{else}}
+      <li class="page-item">
+        <a class="page-link" href="/admin/tags?&page={{value}}">{{value}}</a>
+      </li>
+      {{/if}}
+      {{/each}}
+      <!--Nút next-->
+      <li class="page-item {{#if (Equal this.current_page totalPages)}}disabled{{/if}}">
+      <a class="page-link" 
+         href="/admin/tags?page={{Increment this.current_page}}" >
+        Next
+      </a>
+    </li>
+    </ul>
+</nav>
+  {{/if}}
+  </div>
+</div>
+
+
+

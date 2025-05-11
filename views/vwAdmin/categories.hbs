@@ -1,0 +1,100 @@
+<div class="card">
+  <h4 class="card-header bg-info text-white"> <i class="bi bi-bookmark"></i>Quản lý chuyên mục (Categories)</h4>
+  <div class="card-body">
+    <!-- Form thêm danh mục -->
+    <h5>Thêm chuyên mục mới</h5>
+    <form method="POST" action="/admin/categories/add">
+        <div class="form-group mb-2">
+            <label for="CName">Tên danh mục</label>
+            <input type="text" name="CName" id="CName" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-success m-0">
+            Thêm
+            <i class="bi bi-plus-lg"></i>
+        </button>
+    </form>
+    <hr>
+    <h5>Danh sách Categories</h5>
+    <!-- Hiển thị danh sách danh mục -->
+    <table class="table table-striped border">
+        <thead class="bg bg-warning">
+            <tr>
+                <th>#</th>
+                <th>Tên chuyên mục</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each categories}}
+            <tr>
+                <td>{{this.CID}}</td>
+                <td>{{this.CName}}</td>
+                <td>
+                    <!-- Form sửa danh mục -->
+                    <form method="POST" action="/admin/categories/edit" class="d-inline">
+                        <input type="hidden" name="CID" value="{{this.CID}}">
+                        <input type="text" name="CName" value="{{this.CName}}" class="form-control d-inline w-50">
+                        <button type="submit" class="btn btn-warning">
+                            Sửa
+                            <i class="bi bi-pencil-fill"></i>
+                        </button>
+                    </form>
+
+                    <!-- Form xóa danh mục -->
+                    <form method="POST" action="/admin/categories/delete" class="d-inline">
+                        <input type="hidden" name="CID" value="{{this.CID}}">
+                        <button type="submit" class="btn btn-danger">
+                            Xóa
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </form>
+
+                    <!-- Form chuyển sang danh mục subcategories -->
+                    <form class="d-inline">
+                        <a href="/admin/categories/subcategories?id={{CID}}" class="btn btn-link">
+                            Chuyên mục phụ
+                            <i class="bi bi-box-arrow-up-right"></i>
+                        </a>
+                    </form>
+                </td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+  </div>
+   <div class="card-footer d-flex justify-content-center">
+    {{#if needPagination}}
+    <nav aria-label="Page navigation example">
+  <ul class="pagination">
+    <!-- Nút Previous -->
+    <li class="page-item {{#if (Equal this.current_page 1)}}disabled{{/if}}">
+      <a class="page-link" 
+         href="/admin/categories?page={{Decrement this.current_page}}" >
+        Previous
+      </a>
+    </li>
+      <!-- Các số trang -->
+      {{#each this.pageNumbers}}
+      {{#if active}}
+      <li class="page-item active">
+        <a class="page-link" href="#">{{value}}</a>
+      </li>
+      {{else}}
+      <li class="page-item">
+        <a class="page-link" href="/admin/categories?&page={{value}}">{{value}}</a>
+      </li>
+      {{/if}}
+      {{/each}}
+      <!--Nút next-->
+      <li class="page-item {{#if (Equal this.current_page totalPages)}}disabled{{/if}}">
+      <a class="page-link" 
+         href="/admin/categories?page={{Increment this.current_page}}" >
+        Next
+      </a>
+    </li>
+    </ul>
+</nav>
+  {{/if}}
+  </div>
+</div>
+

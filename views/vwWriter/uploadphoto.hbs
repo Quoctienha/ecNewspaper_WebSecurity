@@ -1,0 +1,48 @@
+{{#section 'js'}}
+  <script src="https://cdn.jsdelivr.net/gh/kartik-v/bootstrap-fileinput@5.2.5/js/fileinput.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-fileinput/5.2.5/js/locales/vi.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-fileinput/5.2.5/themes/fa/theme.min.js"></script>
+  <script>
+    //, 'png', 'gif'
+    $('#fuMain').fileinput({
+      dropZoneEnabled: false,
+      maxFileCount: 5,
+      allowedFileExtensions: ['jpg'],
+      theme: 'fa',
+      language: 'vi',
+      showUpload: false,
+      showRemove: true,
+      browseOnZoneClick: true,
+      browseClass: "btn btn-primary btn-sm",
+      browseLabel: "Chọn tệp",
+    });
+  </script>
+{{/section}}
+<div class="container mt-5">
+    <div class="card shadow-lg">
+        <div class="card-header bg-primary text-white text-center">
+            <h2><i class="fas fa-upload"></i> Upload Ảnh cho Bài Viết</h2>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="/writer/uploadphoto" enctype="multipart/form-data">
+                <!-- Hidden Input for Post ID -->
+                <input type="hidden" name="postID" value="{{postID}}">
+
+                <!-- File Input -->
+                <div class="form-group">
+                    <label for="fuMain" class="form-label">
+                        <strong><i class="fas fa-images"></i> Chọn ảnh để upload</strong>
+                    </label>
+                    <input type="file" id="fuMain" name="fuMain" class="file-input">
+                </div>
+
+                <!-- Submit Button -->
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-success px-4 py-2">
+                        <i class="fas fa-cloud-upload-alt"></i> upload
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

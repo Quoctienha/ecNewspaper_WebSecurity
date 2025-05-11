@@ -1,0 +1,80 @@
+{{#section 'css'}}
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.min.css">
+{{/section}}
+
+{{#section 'js'}}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.full.min.js"></script>
+  <script>
+    // Cài đặt datetimepicker
+  $('#txtDOB').datetimepicker({
+    timepicker: false,
+    format: 'd/m/Y',
+    mask: true
+  });
+
+  $('#frmEditProfile').on('submit', function (e) {
+    e.preventDefault(); // Ngăn hành vi mặc định
+
+    // Lấy giá trị DOB từ form
+    const dob = $('#txtDOB').val();
+
+    // Kiểm tra ngày sinh
+    if (!validateDOB(dob)) {
+        alert('Please enter a valid Date of Birth in DD/MM/YYYY format.');
+        return;
+    }
+    else {
+       // Nếu hợp lệ, submit form
+        $('#frmEditProfile').off('submit').submit();
+    }
+
+});
+  function validateDOB(dob) {
+    const regex = /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/;
+    return regex.test(dob);
+  }
+
+  </script>
+{{/section}}
+
+<form id="frmEditProfile" method="post" action="/account/patch">
+  <div class="card">
+    <h4 class="card-header bg bg-info text-white d-flex justify-content-between">
+      <div>
+        <i class="bi bi-person-lines-fill"></i>
+        Chỉnh sửa hồ sơ
+      </div>
+      <div>
+        <a href="/account/profile" class="btn btn-info" role="button" aria-pressed="true"><i class="bi bi-backspace"></i></a>
+     </div>
+    </h4>
+    <div class="card-body">
+      <div class="form-group">
+        <label for="txtName">Họ và tên</label>
+        <input type="text" name="Fullname" id="txtName" class="form-control" placeholder="" value="{{this.user.Fullname}}">
+      </div>
+      <div class="form-group">
+            <label for="txtAddress">Địa chỉ</label>
+            <input type="text" class="form-control" id="txtAddress" name="Address" placeholder="" value="{{this.user.Address}}" />
+        </div>
+        <div class="form-group">
+            <label for="txtPhone">Số điện thoại</label>
+            <input type="text" class="form-control" id="txtPhone" name="Phone" placeholder="" value="{{this.user.Phone}}" />
+        </div>
+      <div class="form-group">
+        <label for="txtEmail">Email</label>
+        <input type="email" name="Email" id="txtEmail" class="form-control" placeholder="" value="{{this.user.Email}}">
+      </div>
+      <div class="form-group">
+        <label for="txtDOB">Ngày sinh</label>
+        <input type="text" name="DayOfBirth" id="txtDOB" class="form-control" placeholder="" value="{{this.user.DayOfBirth}}">
+      </div>
+    </div>
+    <div class="card-footer d-flex justify-content-center">
+      <button type="submit" class="btn btn-primary" >
+        <i class="bi bi-check2"></i>
+        Lưu
+      </button>
+    </div>
+  </div>
+</form>

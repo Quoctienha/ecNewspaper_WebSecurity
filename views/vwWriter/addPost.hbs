@@ -1,0 +1,144 @@
+{{#section 'css'}}
+    <script src="https://cdn.ckeditor.com/ckeditor5/36.0.1/classic/ckeditor.js"></script>
+{{/section}}
+{{#section 'js'}}
+<script>
+    const subcategories = [
+        {{#each subcategories}}
+        { CID: "{{this.CID}}", SCID: "{{this.SCID}}", SCName: "{{this.SCName}}" },
+        {{/each}}
+    ];
+
+    document.getElementById('CID').addEventListener('change', function() {
+        const selectedCID = this.value;
+        const subcategorySelect = document.getElementById('SCID');
+        subcategorySelect.innerHTML = '<option value="">Chọn chuyên mục phụ</option>';
+        subcategories.forEach(function(subcategory) {
+            if (subcategory.CID === selectedCID) {
+                const option = document.createElement('option');
+                option.value = subcategory.SCID;
+                option.text = subcategory.SCName;
+                subcategorySelect.appendChild(option);
+            }
+        });
+    });
+
+    let editorContent, editorSummary;
+    document.addEventListener('DOMContentLoaded', function () {
+        // Initialize Select2 for tags
+        $('#Tags').select2({
+            placeholder: "Chọn thẻ",
+            allowClear: true
+        });
+    });
+
+// Initialize CKEditor for ContentEditor
+ClassicEditor.create(document.querySelector('#ContentEditor'))
+    .then(newEditor => {
+        editorContent = newEditor;
+    })
+    .catch(error => {
+        console.error("Error initializing CKEditor for Content:", error);
+    });
+
+// Initialize CKEditor for SumContentEditor
+ClassicEditor.create(document.querySelector('#SumContentEditor'))
+    .then(newEditor => {
+        editorSummary = newEditor;
+    })
+    .catch(error => {
+        console.error("Error initializing CKEditor for Summary:", error);
+    });
+
+// Form validation for Categories and Subcategories
+    document.getElementById('addPostForm').addEventListener('submit', function (event) {
+        const isPremium = document.getElementById("premiumSelect").checked ? 1 : 0; 
+        const category = document.getElementById('CID').value;
+        const subcategory = document.getElementById('SCID').value;
+
+        if (!category) {
+            alert('Vui lòng chọn danh mục chính.');
+            event.preventDefault();
+            return;
+        }
+
+        if (!subcategory) {
+            alert('Vui lòng chọn chuyên mục phụ.');
+            event.preventDefault();
+            return;
+        }
+
+        // Prevent form submission if editors are not initialized
+        if (!editorContent || !editorSummary) {
+            event.preventDefault();
+            alert('Vui lòng đợi trình chỉnh sửa nội dung tải xong.');
+            return;
+        }
+
+        // Ensure data is captured from CKEditor before submission
+        document.getElementById('Content').value = editorContent.getData();
+        document.getElementById('SumContent').value = editorSummary.getData();
+        
+        // Add the Premium value to the form data
+        const premiumInput = document.createElement('input');
+        premiumInput.type = 'hidden';
+        premiumInput.name = 'Premium';
+        premiumInput.value = isPremium;
+        this.appendChild(premiumInput);
+    });
+</script>
+{{/section}}
+
+<div class="card">
+  <h3 class="card-header text-center bg bg-info text-white">Thêm bài viết mới</h3>
+  <div class="card-body bg bg-light">
+    <!-- Form for adding a new post -->
+    <form method="POST" action="/writer/add" id="addPostForm">
+        <div class="form-group mb-2">
+            <label for="PostTitle">Tiêu đề bài viết</label>
+            <input type="text" name="PostTitle" id="PostTitle" class="form-control" required>
+        </div>
+        <div class="form-group mb-2">
+            <label for="CID">Danh mục</label>
+            <select name="CID" id="CID" class="form-control" required>
+                <option value="">Chọn danh mục</option>
+                {{#each categories}}
+                <option value="{{this.CID}}">{{this.CName}}</option>
+                {{/each}}
+            </select>
+        </div>
+        <div class="form-group mb-2">
+            <label for="SCID">Chuyên mục phụ</label>
+            <select name="SCID" id="SCID" class="form-control" required>
+                <option value="">Chọn chuyên mục phụ</option>
+            </select>
+        </div>
+       
+        <div class="form-group mb-2">
+            <label for="SumContent">Tóm tắt nội dung</label>
+            <div id="SumContentEditor" class="form-control" required></div>
+            <input type="hidden" name="SumContent" id="SumContent">
+        </div>
+
+        <div class="form-group mb-2">
+            <label for="Content">Nội dung bài viết</label>
+            <div id="ContentEditor" class="form-control" required></div>
+            <input type="hidden" name="Content" id="Content">
+        </div>
+         <div class="form-group mb-2">
+                <label for="Tags">Thẻ bài viết</label>
+                <select name="Tags[]" id="Tags" class="form-control" multiple="multiple">
+                    {{#each tags}}
+                    <option value="{{this.TagID}}">{{this.TName}}</option>
+                    {{/each}}
+                </select>
+            </div>
+        <label for="premiumSelect">Chọn loại:</label>
+        <div>
+            <input type="checkbox" id="premiumSelect">
+            <label for="premiumSelect">Premium</label>
+        </div>
+        <button type="submit" class="btn btn-success">Thêm bài viết</button>
+    </form>
+  </div>
+</div>

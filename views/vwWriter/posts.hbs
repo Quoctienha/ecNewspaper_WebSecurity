@@ -1,0 +1,174 @@
+{{#section 'js'}}
+<script>
+   function toggleSection(sectionId, buttonId) {
+       // Hide all sections
+       const sections = document.querySelectorAll(".drafts-table");
+       sections.forEach(section => section.style.display = "none");
+
+       // Show the selected section
+       document.getElementById(sectionId).style.display = "block";
+
+       // Remove active state from all buttons
+       const buttons = document.querySelectorAll(".btn-group .btn");
+       buttons.forEach(button => {
+           button.classList.remove("btn-primary", "active");
+           button.classList.add("btn-secondary");
+       });
+
+       // Add active state to the clicked button
+       const activeButton = document.getElementById(buttonId);
+       activeButton.classList.add("btn-primary", "active");
+       activeButton.classList.remove("btn-secondary");
+
+       // Hide the content section
+       hideContent();
+   }
+
+   function viewContent(button) {
+       const content = button.getAttribute("data-content"); // Retrieve the content from the data attribute
+
+       const contentSection = document.getElementById("selectedPostContent");
+       const contentDiv = document.getElementById("postContent");
+
+       if (content) {
+           // Decode and display the web-formatted content
+           contentDiv.innerHTML = content; // Use innerHTML to render HTML or rich text
+           contentSection.style.display = "block"; // Make the content section visible
+
+           // Scroll to the content section
+           contentSection.scrollIntoView({ behavior: 'smooth' });
+       } else {
+           contentDiv.textContent = "Không có nội dung.";
+           contentSection.style.display = "none";
+       }
+   }
+
+   function hideContent() {
+       const contentSection = document.getElementById("selectedPostContent");
+       const contentDiv = document.getElementById("postContent");
+
+       contentDiv.innerHTML = ""; // Clear content
+       contentSection.style.display = "none"; // Hide the section
+   }
+</script>
+{{/section}}
+<div class="card ">
+  <div class="card-header text-center h3 bg bg-info text-white">
+    Quản lý bài viết "{{status}}"
+  </div>
+  <div class="card-body p-0 pt-3">
+    {{#if posts}}
+    <!-- Display the list of posts -->
+    <table class="table table-striped border m-0">
+        <thead class="bg bg-warning ">
+            <tr style="text-align: center;">
+                <th>#</th>
+                <th>Tiêu đề</th>
+                <th>Danh mục</th>
+                <th>Chuyên mục phụ</th>
+                <th>Ngày đăng</th>
+                <th>Trạng thái</th>
+                <th>Hành động</th>
+                {{#if (Stringcompare status "Từ chối")}}
+                <th>Lý do từ chối</th>
+                {{/if}}
+                <th>Xem nội dung</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each posts}}
+            <tr style="text-align: center;">
+                <td>{{this.PostID}}</td>
+                <td>{{this.PostTitle}}</td>
+                <td>{{this.CName}}</td>
+                <td>{{this.SCName}}</td>
+                <td>{{this.TimePost}}</td>
+                <td>{{this.StatusPost}}</td>
+                <td>
+                    <!-- Link to edit post -->
+                    
+                     {{#if (Stringcompare this.StatusPost "Chờ duyệt")}}
+                         <a href="/writer/edit/{{this.PostID}}" class="btn btn-warning" aria-label="Sửa bài viết">
+                        Sửa
+                        <i class="bi bi-pencil-fill"></i>
+                    </a>
+                    {{/if}}
+                     {{#if (Stringcompare this.StatusPost "Từ chối")}}
+                         <a href="/writer/edit/{{this.PostID}}" class="btn btn-warning" aria-label="Sửa bài viết">
+                        Sửa
+                        <i class="bi bi-pencil-fill"></i>
+                    </a>
+                    {{/if}}
+                    <!-- Form to delete post -->
+                    <form method="POST" action="/writer/delete" class="d-inline"
+                        onsubmit="return confirm('Bạn có chắc muốn xóa bài viết này?');">
+                        <input type="hidden" name="PostID" value="{{this.PostID}}">
+                        <button type="submit" class="btn btn-danger">
+                            Xóa
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </form>
+                </td>
+                {{#if (Stringcompare this.StatusPost "Từ chối")}}
+                    <td>{{this.Reason}}</td>
+                {{/if}}
+                <td>
+                  <button 
+                    class="btn btn-info btn-sm" 
+                    data-content="{{this.Content}}" 
+                    onclick="viewContent(this)">
+                    Xem nội dung
+                  </button>
+                </td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+    {{else}}
+     <div class="alert alert-info m-0 text-center" role="alert">
+        Hiện tại không có bài viết nào của bạn ở trạng thái này
+      </div>
+    {{/if}}
+  </div>
+  <div class="card-footer d-flex justify-content-center">
+    {{#if needPagination}}
+    <nav aria-label="Page navigation example">
+    <ul class="pagination">
+        <!-- Nút Previous -->
+    <li class="page-item {{#if (Equal this.current_page 1)}}disabled{{/if}}">
+      <a class="page-link" 
+         href="/writer?status={{status}}&page={{Decrement this.current_page}}" >
+        Previous
+      </a>
+    </li>
+      <!-- Các số trang -->
+      {{#each this.pageNumbers}}
+      {{#if active}}
+      <li class="page-item active">
+        <a class="page-link" href="#">{{value}}</a>
+      </li>
+      {{else}}
+      <li class="page-item">
+        <a class="page-link" href="/writer?status={{../status}}&page={{value}}">{{value}}</a>
+      </li>
+      {{/if}}
+      {{/each}}
+      <!--Nút next-->
+      <li class="page-item {{#if (Equal this.current_page totalPages)}}disabled{{/if}}">
+      <a class="page-link" 
+         href="/writer?status={{status}}&page={{Increment this.current_page}}" >
+        Next
+      </a>
+    </li>
+    </ul>
+    </nav>
+  {{/if}}
+  </div>
+   <div id="selectedPostContent" style="margin-top: 20px; border: 1px solid #ddd; padding: 10px; display: none;">
+  <button onclick="hideContent()" class="btn btn-secondary btn-sm" style="float: right;">Ẩn</button>
+  <h3>Nội dung bài viết</h3>
+  <p id="postContent">Chưa có nội dung được chọn.</p>
+</div>
+
+
+

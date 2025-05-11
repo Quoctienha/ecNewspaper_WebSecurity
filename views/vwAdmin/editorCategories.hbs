@@ -1,0 +1,89 @@
+<div class="card">
+  <h4 class="card-header bg-info text-white"> <i class="bi bi-bookmark"></i>Danh sách chuyên mục quản lý bởi "{{editor.UserName}}"</h4>
+  <div class="card-body">
+    <!-- Form thêm danh mục -->
+    <h5>Thêm chuyên mục mới</h5>
+    <form method="POST" action="/admin/editor/addCat">
+        <div class="form-group">
+            <label for="exampleFormControlSelectCategory">Chọn chuyên mục</label>
+            <input type="hidden" name="EID" value="{{editor.UserID}}">
+            <select class="form-control" id="exampleFormControlSelectCategory" name="CID">
+                {{#each catNotManaged}}
+                <option value="{{CID}}">{{CName}}</option>
+                {{/each}}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-success m-0">
+            Thêm
+            <i class="bi bi-plus-lg"></i>
+        </button>
+    </form>
+    <hr>
+    <h5>Danh sách Categories</h5>
+    <!-- Hiển thị danh sách danh mục -->
+    <table class="table table-striped border">
+        <thead class="bg bg-warning">
+            <tr>
+                <th>#</th>
+                <th>Tên chuyên mục</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each categories}}
+            <tr>
+                <td>{{this.CID}}</td>
+                <td>{{this.CName}}</td>
+                <td>
+                    <!-- Form xóa danh mục -->
+                    <form method="POST" action="/admin/editor/delCat" class="d-inline">
+                        <input type="hidden" name="CID" value="{{this.CID}}">
+                        <input type="hidden" name="EID" value="{{../editor.UserID}}">
+                        <button type="submit" class="btn btn-danger">
+                            Xóa
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+    <!--Trở về danh sách editor-->
+    <a href="/admin/editor" class="btn btn-primary"  role="button">Trở về danh sách biên tập viên</a>
+  </div>
+   <div class="card-footer d-flex justify-content-center">
+    {{#if needPagination}}
+    <nav aria-label="Page navigation example">
+  <ul class="pagination">
+    <!-- Nút Previous -->
+    <li class="page-item {{#if (Equal this.current_page 1)}}disabled{{/if}}">
+      <a class="page-link" 
+         href="/admin/editor/categories?editorID={{editor.UserID}}&page={{Decrement this.current_page}}" >
+        Previous
+      </a>
+    </li>
+      <!-- Các số trang -->
+      {{#each this.pageNumbers}}
+      {{#if active}}
+      <li class="page-item active">
+        <a class="page-link" href="#">{{value}}</a>
+      </li>
+      {{else}}
+      <li class="page-item">
+        <a class="page-link" href="/admin/editor/categories?editorID={{../editor.UserID}}&page={{value}}">{{value}}</a>
+      </li>
+      {{/if}}
+      {{/each}}
+      <!--Nút next-->
+      <li class="page-item {{#if (Equal this.current_page totalPages)}}disabled{{/if}}">
+      <a class="page-link" 
+         href="/admin/editor/categories?editorID={{editor.UserID}}&page={{Increment this.current_page}}" >
+        Next
+      </a>
+    </li>
+    </ul>
+</nav>
+  {{/if}}
+  </div>
+</div>

@@ -1,0 +1,173 @@
+{{#section 'css'}}
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.min.css">
+{{/section}}
+
+{{#section 'js'}}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.full.min.js"></script>
+  <script>
+     // Cài đặt datetimepicker
+  $('#txtDOB').datetimepicker({
+    timepicker: false,
+    format: 'd/m/Y',
+    mask: true
+  });
+
+  // Kiểm tra ràng buộc dữ liệu
+  $('#frmRegister').on('submit', function (e) {
+    e.preventDefault(); // Ngăn hành vi mặc định
+
+    // Lấy giá trị từ các trường
+    const username = $('#txtUsername').val().trim();
+    const password = $('#txtPassword').val().trim();
+    const confirmPassword = $('#txtConfirm').val().trim();
+    const name = $('#txtFullname').val().trim();
+    const address = $('#txtAddress').val().trim();
+    const phone = $('#txtPhone').val().trim();
+    const email = $('#txtEmail').val().trim();
+    const dob = $('#txtDOB').val().trim();
+
+    // Kiểm tra từng trường
+    if (username.length === 0) {
+      alert('Username is required.');
+      return;
+    }
+
+    $.getJSON(`/account/is-available?username=${username}`, function (data) {
+      if (!data) {
+        alert('Username is not available.');
+        return;
+      }
+
+      if (password.length === 0) {
+        alert('Password is required.');
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        alert('Passwords do not match.');
+        return;
+      }
+
+      if (name.length === 0) {
+        alert('Full name is required.');
+        return;
+      }
+
+      if (!validateName(name)) {
+        alert('Full name should not contain numbers.');
+        return;
+      }
+
+      if (address.length === 0) {
+        alert('Address is required.');
+        return;
+      }
+
+      if (phone.length === 0) {
+        alert('Phone is required.');
+        return;
+      }
+
+      if (!validatePhone(phone)) {
+        alert('Phone should only contain numbers.');
+        return;
+      }
+
+      if (email.length === 0) {
+        alert('Email is required.');
+        return;
+      }
+      if (!validateEmail(email)) {
+        alert('Please enter a valid email address.');
+        return;
+      }
+
+      if (!validateDOB(dob)) {
+        alert('Please enter a valid Date of Birth in DD/MM/YYYY format.');
+        return;
+      }else {
+       // Nếu hợp lệ, submit form
+        $('#frmRegister').off('submit').submit();
+      }
+    });
+  });
+
+  function validateEmail(email) {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+  }
+
+  function validateDOB(dob) {
+    const regex = /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/;
+    return regex.test(dob);
+  }
+
+   function validateName(name) {
+    const regex = /^[a-zA-Z\s]+$/; // Chỉ cho phép chữ cái và khoảng trắng
+    return regex.test(name);
+  }
+
+  function validatePhone(phone) {
+    const regex = /^\d+$/; // Chỉ cho phép số
+    return regex.test(phone);
+  }
+  </script>
+{{/section}}
+
+
+<form id="frmRegister" method="post">
+  <div class="card bg bg-light">
+    <h4 class="card-header bg bg-info text-white d-flex justify-content-between">
+      <div>
+        <i class="bi bi-person-fill-add"></i>
+        Đăng ký tài khoản ecNewsPaper
+      </div>
+      <div>
+        <a href="/" class="btn btn-info" role="button" aria-pressed="true"><i class="bi bi-backspace"></i></a>
+     </div>
+    </h4>
+    <div class="card-body">
+      <h5>Thông tin đăng nhập (bắt buộc)</h5>
+      <div class="form-group">
+        <label for="txtUsername">Tên đăng nhập</label>
+        <input type="text" class="form-control" id="txtUsername" name="username" placeholder="Tên đăng nhập"/>
+      </div>
+      <div class="form-group">
+        <label for="txtPassword">Mật khẩu</label>
+        <input type="password" class="form-control" id="txtPassword" name="raw_password" placeholder="Mật khẩu"/>
+      </div>
+      <div class="form-group mb-5">
+        <label for="txtConfirm">Xác nhận lại mật khẩu</label>
+        <input type="password" class="form-control" name="confirm_password" id="txtConfirm" placeholder="Nhập lại mật khẩu của bạn"/>
+      </div>
+    <hr>
+      <h5>Hồ sơ người dùng</h5>
+      <div class="form-group">
+        <label for="txtFullname">Họ và tên</label>
+        <input type="text" class="form-control" id="txtFullname" name="Fullname" placeholder="Họ tên đầy đủ của bạn"/>
+      </div>
+      <div class="form-group">
+        <label for="txtAddress">Địa chỉ</label>
+        <input type="text" class="form-control" id="txtAddress" name="Address" placeholder="Địa chỉ"/>
+      </div>
+      <div class="form-group">
+        <label for="txtPhone">Số điện thoại</label>
+        <input type="text" class="form-control" id="txtPhone" name="Phone" placeholder="Số điện thoại"/>
+      </div>
+      <div class="form-group">
+        <label for="txtEmail">Email</label>
+        <input type="text" class="form-control" id="txtEmail" name="Email" placeholder="Email"/>
+      </div>
+      <div class="form-group">
+        <label for="txtDOB">Ngày sinh</label>
+        <input type="text" class="form-control" id="txtDOB" name="raw_dob" />
+      </div>
+    </div>
+    <div class="card-footer text-right">
+      <button type="submit" class="btn btn-outline-success">
+        <i class="bi bi-plus-square"></i>
+        Đăng ký tài khoản
+      </button>
+    </div>
+  </div>
+</form>

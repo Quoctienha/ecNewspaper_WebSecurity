@@ -1,0 +1,62 @@
+<div class="card">
+  <h4 class="card-header bg-info text-white"><i class="bi bi-bookmarks"></i>Quản lý Chuyên Mục con của"{{categories.CName}}"</h4>
+  <div class="card-body">
+    <!-- Form thêm subcategory -->
+    <h5>Thêm chuyên Mục con mới</h5>
+    <form method="POST" action="/admin/categories/subcategories/add">
+        <div class="form-group mb-2">
+            <label for="SCName">Tên Subcategory</label>
+            <input type="hidden" name="cid" value="{{this.cid}}">
+            <input type="text" name="SCName" id="SCName" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-success m-0">
+            Thêm
+            <i class="bi bi-plus-lg"></i>
+        </button>
+    </form>
+    <hr>
+    <h5>Danh sách chuyên Mục con</h5>
+    <!-- Hiển thị danh sách subcategories -->
+    <table class="table table-striped border">
+        <thead class="bg-warning text-dark">
+            <tr>
+                <th>#</th>
+                <th>Tên chuyên Mục con</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each subcategories}}
+            <tr>
+                <td>{{this.SCID}}</td>
+                <td>{{this.SCName}}</td>
+                <td>
+                    <!-- Form sửa subcategory -->
+                    <form method="POST" action="/admin/categories/subcategories/edit" class="d-inline">
+                        <input type="hidden" name="SCID" value="{{this.SCID}}">
+                        <input type="hidden" name="cid" value="{{../cid}}">
+                        <input type="text" name="SCName" value="{{this.SCName}}" class="form-control d-inline w-50">
+                        <button type="submit" class="btn btn-warning">
+                            Sửa
+                            <i class="bi bi-pencil-fill"></i>
+                        </button>
+                    </form>
+
+                    <!-- Form xóa subcategory -->
+                    <form method="POST" action="/admin/categories/subcategories/delete" class="d-inline">
+                        <input type="hidden" name="SCID" value="{{this.SCID}}">
+                        <input type="hidden" name="cid" value="{{../cid}}">
+                        <button type="submit" class="btn btn-danger">
+                            Xóa
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+
+    <a href="/admin/categories" class="btn btn-primary mt-3"><i class="bi bi-box-arrow-left"></i> Quay lại danh sách Categories</a>
+  </div>
+</div>

@@ -1,0 +1,96 @@
+<div class="card text-center">
+  <div class="card-header">
+    <h2>
+        <i class="bi bi-tags"></i>Tags:
+        {{title}}
+    </h2>
+  </div>
+  <div class="card-body">
+    {{#if posts.length}}
+        <div class="row">
+          {{#each posts}}
+          <div class="col-sm-12">
+            <div class="card mb-3" >
+              <div class="row no-gutters">
+                <div class="col-sm-4">
+                  <img class="img-fluid" src="http://localhost:3030/static/imgs/posts/{{PostID}}/{{PostID}}_1.jpg" alt="{{PostTitle}}" >
+                </div>
+                <div class="col-sm-8">
+                  <div class="card-body text-left">
+                    <h5 class="card-title">
+                      <a href="/posts/IncreaseView?id={{PostID}}" class="card-link">{{PostTitle}}</a>
+                      {{#if Premium}}                                                             
+                          <span class="badge badge-pill badge-warning">
+                            Premium
+                            <i class="bi bi-stars"></i>
+                          </span>  
+                      {{else}}
+                      {{/if}}
+                    </h5>
+                    <p class="card-text h5">Chuyên Mục:
+                        <a href="/posts/byCategory?id={{CID}}" class="badge badge-info ">{{CName}}</a>
+                        <a href="/posts/bySubcategory?id={{SCID}}" class="badge badge-info ">{{SCName}}</a>
+                    </p> 
+                    <p class="card-text h6">
+                            <i class="bi bi-tags"></i>Tags:
+                            {{#each Tags}}
+                              <a href="/posts/byTag?id={{TagID}}" class="badge badge-primary">{{TName}}</a>
+
+                            {{/each}}
+
+                    </p>  
+                    <p class="card-text">{{SumContent}}</p>
+                    <p class="card-text"><small class="text-muted">Ngày công khai: {{TimePublic}}</small></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>       
+          {{/each}}
+        </div>          
+    {{else}}
+      <div class="alert alert-info" role="alert">
+        ecNewsPaper xin lỗi, hiện tại không có bài viết nào có tag này
+      </div>
+        
+    {{/if}}
+  </div>
+
+    
+  <div class="card-footer d-flex justify-content-center">
+    {{#if needPagination}}
+    <nav aria-label="Page navigation example">
+  <ul class="pagination">
+    <!-- Nút Previous -->
+    <li class="page-item {{#if (Equal this.current_page 1)}}disabled{{/if}}">
+      <a class="page-link" 
+         href="/posts/byTag?id={{TagID}}&page={{Decrement this.current_page}}" >
+        Previous
+      </a>
+    </li>
+      <!-- Các số trang -->
+      {{#each this.pageNumbers}}
+      {{#if active}}
+      <li class="page-item active">
+        <a class="page-link" href="#">{{value}}</a>
+      </li>
+      {{else}}
+      <li class="page-item">
+        <a class="page-link" href="/posts/byTag?id={{../TagID}}&page={{value}}">{{value}}</a>
+      </li>
+      {{/if}}
+      {{/each}}
+      <!--Nút next-->
+      <li class="page-item {{#if (Equal this.current_page totalPages)}}disabled{{/if}}">
+      <a class="page-link" 
+         href="/posts/byTag?id={{TagID}}&page={{Increment this.current_page}}" >
+        Next
+      </a>
+    </li>
+    </ul>
+</nav>
+  {{/if}}
+  </div>
+</div>
+
+

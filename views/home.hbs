@@ -1,0 +1,362 @@
+
+<!--Top 3 bài viết-->
+<div class="card">
+            <h4 class="card-header text-white bg bg-info">Top 3 bài viết nổi bật nhất tuần</h4>
+            <div class="card-body p-0">
+              <!--carousel-->
+              <div id="carouselExampleCaptions" class="carousel slide" data-ride="carousel">
+                <ol class="carousel-indicators">
+                  <li data-target="#carouselExampleCaptions" data-slide-to="0" class="active"></li>
+                  <li data-target="#carouselExampleCaptions" data-slide-to="1"></li>
+                  <li data-target="#carouselExampleCaptions" data-slide-to="2"></li>
+                </ol>
+                <div class="carousel-inner">
+                  <div class="carousel-item active">
+                    <!--thứ muốn hiện lên-->
+                    <div class="card" >
+                         <img src="http://localhost:3030/static/imgs/posts/{{lastPost.PostID}}/{{lastPost.PostID}}_1.jpg" class="card-img-top " alt="..." style="height: 30rem;" >
+                        <div class="card-body">
+                          <h5 class="card-title">
+                            <a href="/posts/IncreaseView?id={{lastPost.PostID}}" class="card-link">                          
+                              {{lastPost.PostTitle}}
+                            </a>
+                            {{#if lastPost.Premium}}                                                             
+                                <span class="badge badge-pill badge-warning">
+                                  Premium
+                                  <i class="bi bi-stars"></i>
+                                </span>  
+                            {{else}}
+                            {{/if}}                                                    
+                          </h5>      
+                          <p class="card-text h5">Chuyên Mục:
+                            <a href="/posts/byCategory?id={{lastPost.CID}}" class="badge badge-info ">{{lastPost.CName}}</a>
+                            <a href="/posts/bySubcategory?id={{lastPost.SCID}}" class="badge badge-info ">{{lastPost.SCName}}</a>
+                          </p>
+                          <p class="card-text h6">
+                            <i class="bi bi-tags"></i>Tags:
+                            {{#each lastPost.Tags}}
+                              <a href="/posts/byTag?id={{TagID}}" class="badge badge-primary">{{TName}}</a>
+
+                            {{/each}}
+
+                          </p> 
+                                                                                           
+                          <p class="card-text">{{lastPost.SumContent}}</p>
+                          <p class="card-text"><small class="text-muted">Ngày công khai: {{lastPost.TimePublic}}</small></p>
+                        </div>
+                    </div>
+    
+                    
+                  </div>
+                     
+                  {{#each top2post}}
+                  <div class="carousel-item">
+                    <!--thứ muốn hiện lên-->
+                    <div class="card" >
+                         <img src="http://localhost:3030/static/imgs/posts/{{PostID}}/{{PostID}}_1.jpg" class="card-img-top" alt="..." style="height: 60vh;">
+                        <div class="card-body"> 
+                          <h5 class="card-title">
+                            <a href="/posts/IncreaseView?id={{PostID}}" class="card-link">                          
+                                {{PostTitle}}
+                            </a>
+                            {{#if Premium}}                                                             
+                                <span class="badge badge-pill badge-warning">
+                                  Premium
+                                  <i class="bi bi-stars"></i>
+                                </span>  
+                            {{else}}
+                            {{/if}}                                                   
+                          </h5>                                                                          
+                          <p class="card-text h5">Chuyên Mục:
+                            <a href="/posts/byCategory?id={{CID}}" class="badge badge-info ">{{CName}}</a>
+                            <a href="/posts/bySubcategory?id={{SCID}}" class="badge badge-info ">{{SCName}}</a>
+                          </p>    
+                          <p class="card-text h6">
+                            <i class="bi bi-tags"></i>Tags:
+                            {{#each Tags}}
+                              <a href="/posts/byTag?id={{TagID}}" class="badge badge-primary">{{TName}}</a>
+
+                            {{/each}}
+
+                          </p>                                                              
+                          <p class="card-text">{{SumContent}}</p>
+                          <p class="card-text"><small class="text-muted">Ngày công khai: {{TimePublic}}</small></p>
+                          
+                        </div>
+                    </div>
+    
+                    
+                  </div>
+
+                  {{/each}}
+    
+                  
+                </div>
+                <button class="carousel-control-prev border border-black" style="height: 60vh;" type="button" data-target="#carouselExampleCaptions" data-slide="prev">
+                  <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                  <span class="sr-only">Previous</span>
+                </button>
+                <button class="carousel-control-next border border-black" style="height: 60vh;" type="button" data-target="#carouselExampleCaptions" data-slide="next">
+                  <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                  <span class="sr-only">Next</span>
+                </button>
+              </div>
+              
+            </div>
+</div>
+
+<!--Top 10 bài viết được xem nhiều nhất (mọi chuyên mục)-->
+<div class="card text-center mt-5">
+  <div class="card-header">
+    <h5>
+      Top 10 bài viết được xem nhiều nhất (mọi chuyên mục)
+    </h5>
+  </div>
+  <div class="card-body">
+    <div class="row">
+      {{#each top10MostView}}
+      <div class="col-sm-12">
+            <div class="card mb-3" >
+              <div class="row no-gutters">
+                <div class="col-sm-4">
+                  <img class="img-fluid" src="http://localhost:3030/static/imgs/posts/{{PostID}}/{{PostID}}_1.jpg" alt="{{PostTitle}}" >
+                </div>
+                <div class="col-sm-8">
+                  <div class="card-body text-left">
+                    <h5 class="card-title">
+                      <a href="/posts/IncreaseView?id={{PostID}}" class="card-link">{{PostTitle}}</a>
+                      {{#if Premium}}                                                             
+                          <span class="badge badge-pill badge-warning">
+                            Premium
+                            <i class="bi bi-stars"></i>
+                          </span>  
+                      {{else}}
+                      {{/if}}
+                    </h5>
+                    <p class="card-text h5">Chuyên Mục:
+                        <a href="/posts/byCategory?id={{CID}}" class="badge badge-info ">{{CName}}</a>
+                        <a href="/posts/bySubcategory?id={{SCID}}" class="badge badge-info ">{{SCName}}</a>
+                    </p> 
+                    <p class="card-text h6">
+                            <i class="bi bi-tags"></i>Tags:
+                            {{#each Tags}}
+                              <a href="/posts/byTag?id={{TagID}}" class="badge badge-primary">{{TName}}</a>
+
+                            {{/each}}
+
+                    </p> 
+                    <p class="card-text">{{SumContent}}</p>
+                    <p class="card-text"><small class="text-muted">Ngày công khai: {{TimePublic}}</small></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+      {{/each}}
+    </div>
+    
+  </div>
+  <div class="card-footer d-flex justify-content-center ">
+
+   <!--Pagination-->
+    <nav aria-label="Page navigation example">
+  <ul class="pagination">
+    <!-- Nút Previous -->
+    <li class="page-item {{#if (Equal this.current_pageMV 1)}}disabled{{/if}}">
+      <a class="page-link" 
+         href="?pageMV={{Decrement this.current_pageMV}}&pageNP={{current_pageNP}}&pageTC={{current_pageTC}}" >
+        Previous
+      </a>
+    </li>
+      <!-- Các số trang -->
+      {{#each this.pageNumbersMV}}
+      {{#if active}}
+      <li class="page-item active">
+        <a class="page-link" href="#">{{value}}</a>
+      </li>
+      {{else}}
+      <li class="page-item">
+        <a class="page-link" href="?pageMV={{value}}&pageNP={{../current_pageNP}}&pageTC={{../current_pageTC}}">{{value}}</a>
+      </li>
+      {{/if}}
+      {{/each}}
+      <!--Nút next-->
+      <li class="page-item {{#if (Equal this.current_pageMV totalPages)}}disabled{{/if}}">
+      <a class="page-link" 
+         href="?pageMV={{Increment this.current_pageMV}}&pageNP={{current_pageNP}}&pageTC={{current_pageTC}}" >
+        Next
+      </a>
+    </li>
+    </ul>
+    </nav>
+  </div>
+</div>
+
+<!--Top 10 bài viết mới nhất (mọi chuyên mục)-->
+<div class="card text-center mt-5">
+  <div class="card-header">
+    <h5>
+      Top 10 bài viết mới nhất (mọi chuyên mục)
+    </h5>
+  </div>
+  <div class="card-body">
+    <div class="row">
+      {{#each top10NewestPost}}
+      <div class="col-sm-12">
+            <div class="card mb-3" >
+              <div class="row no-gutters">
+                <div class="col-sm-4">
+                  <img class="img-fluid" src="http://localhost:3030/static/imgs/posts/{{PostID}}/{{PostID}}_1.jpg" alt="{{PostTitle}}" >
+                </div>
+                <div class="col-sm-8">
+                  <div class="card-body text-left">
+                    <h5 class="card-title">
+                      <a href="/posts/IncreaseView?id={{PostID}}" class="card-link">{{PostTitle}}</a>
+                      {{#if Premium}}                                                             
+                          <span class="badge badge-pill badge-warning">
+                            Premium
+                            <i class="bi bi-stars"></i>
+                          </span>  
+                      {{else}}
+                      {{/if}}
+                    </h5>
+                    <p class="card-text h5">Chuyên Mục:
+                        <a href="/posts/byCategory?id={{CID}}" class="badge badge-info ">{{CName}}</a>
+                        <a href="/posts/bySubcategory?id={{SCID}}" class="badge badge-info ">{{SCName}}</a>
+                    </p>  
+                    <p class="card-text h6">
+                            <i class="bi bi-tags"></i>Tags:
+                            {{#each Tags}}
+                              <a href="/posts/byTag?id={{TagID}}" class="badge badge-primary">{{TName}}</a>
+
+                            {{/each}}
+
+                      </p> 
+                    <p class="card-text">{{SumContent}}</p>
+                    <p class="card-text"><small class="text-muted">Ngày công khai: {{TimePublic}}</small></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+      {{/each}}
+    </div>
+  </div>
+  <div class="card-footer d-flex justify-content-center">
+    <!--Pagination-->
+    <nav aria-label="Page navigation example">
+  <ul class="pagination">
+      <!-- Nút Previous -->
+    <li class="page-item {{#if (Equal this.current_pageNP 1)}}disabled{{/if}}">
+      <a class="page-link" 
+         href="?pageMV={{current_pageMV}}&pageNP={{Decrement this.current_pageNP}}&pageTC={{current_pageTC}}" >
+        Previous
+      </a>
+    </li>
+      {{#each this.pageNumbersNP}}
+      {{#if active}}
+      <li class="page-item active">
+        <a class="page-link" href="#">{{value}}</a>
+      </li>
+      {{else}}
+      <li class="page-item">
+        <a class="page-link" href="?pageMV={{../current_pageMV}}&pageNP={{value}}&pageTC={{../current_pageTC}}">{{value}}</a>
+      </li>
+      {{/if}}
+      {{/each}}
+      <!--Nút next-->
+      <li class="page-item {{#if (Equal this.current_pageNP totalPages)}}disabled{{/if}}">
+      <a class="page-link" 
+         href="?pageMV={{current_pageMV}}&pageNP={{Increment this.current_pageNP}}&pageTC={{current_pageTC}}" >
+        Next
+      </a>
+    </li>
+    </ul>
+    </nav>
+  </div>
+</div>
+
+<!--Top 10 chuyên mục, mỗi chuyên mục 1 bài mới nhất-->
+<div class="card text-center mt-5">
+  <div class="card-header">
+     <h5>
+      Top 10 chuyên mục, mỗi chuyên mục 1 bài mới nhất
+     </h5>
+  </div>
+  <div class="card-body">
+    <div class="row">
+      {{#each newestPostsOfTop10Cat}}
+      <div class="col-sm-12">
+            <div class="card mb-3" >
+              <div class="row no-gutters">
+                <div class="col-sm-4">
+                  <img class="img-fluid" src="http://localhost:3030/static/imgs/posts/{{PostID}}/{{PostID}}_1.jpg" alt="{{PostTitle}}" >
+                </div>
+                <div class="col-sm-8">
+                  <div class="card-body text-left">
+                    <h5 class="card-title">
+                      <a href="/posts/IncreaseView?id={{PostID}}" class="card-link">{{PostTitle}}</a>
+                      {{#if Premium}}                                                             
+                          <span class="badge badge-pill badge-warning">
+                            Premium
+                            <i class="bi bi-stars"></i>
+                          </span>  
+                      {{else}}
+                      {{/if}}
+                    </h5>
+                    <p class="card-text h5">Chuyên Mục:
+                        <a href="/posts/byCategory?id={{CID}}" class="badge badge-info ">{{CName}}</a>
+                        <a href="/posts/bySubcategory?id={{SCID}}" class="badge badge-info ">{{SCName}}</a>
+                    </p> 
+                    <p class="card-text h6">
+                            <i class="bi bi-tags"></i>Tags:
+                            {{#each Tags}}
+                              <a href="/posts/byTag?id={{TagID}}" class="badge badge-primary">{{TName}}</a>
+
+                            {{/each}}
+
+                          </p>  
+                    <p class="card-text">{{SumContent}}</p>
+                    <p class="card-text"><small class="text-muted">Ngày công khai: {{TimePublic}}</small></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+      {{/each}}
+    </div>
+  </div>
+  <div class="card-footer d-flex justify-content-center">
+    <!--Pagination-->
+    <nav aria-label="Page navigation example">
+  <ul class="pagination">
+      <!-- Nút Previous -->
+    <li class="page-item {{#if (Equal this.current_pageTC 1)}}disabled{{/if}}">
+      <a class="page-link" 
+         href="?pageMV={{current_pageMV}}&pageNP={{current_pageNP}}&pageTC={{Decrement this.current_pageTC}}" >
+        Previous
+      </a>
+    </li>
+      {{#each this.pageNumbersTC}}
+      {{#if active}}
+      <li class="page-item active">
+        <a class="page-link" href="#">{{value}}</a>
+      </li>
+      {{else}}
+      <li class="page-item">
+        <a class="page-link" href="?pageMV={{../current_pageMV}}&pageNP={{../current_pageNP}}&pageTC={{value}}">{{value}}</a>
+      </li>
+      {{/if}}
+      {{/each}}
+      <!--Nút next-->
+      <li class="page-item {{#if (Equal this.current_pageTC totalPages)}}disabled{{/if}}">
+      <a class="page-link" 
+         href="?pageMV={{current_pageMV}}&pageNP={{current_pageNP}}&pageTC={{Increment this.current_pageTC}}" >
+        Next
+      </a>
+    </li>
+    </ul>
+    </nav>
+  </div>
+</div>
+

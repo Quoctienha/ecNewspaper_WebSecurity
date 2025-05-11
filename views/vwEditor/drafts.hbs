@@ -1,0 +1,432 @@
+{{#section 'css'}}
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.min.css">
+<style>
+  /* Make sure all buttons are the same size and centered */
+.btn-group {
+  display: flex;
+  justify-content: center;  /* Center buttons horizontally */
+  width: 100%;
+}
+
+.btn-group .btn {
+  flex: 1;                  /* Make all buttons take equal space */
+  text-align: center;       /* Center text inside each button */
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Active button style */
+.btn-group .btn.active {
+  background-color: #0056b3;
+  border-color: #0056b3;
+  color: white;
+}
+
+/* Optional: Styling for inactive buttons */
+.btn-group .btn:not(.active) {
+  background-color: #6c757d;
+  color: white;
+}
+
+</style>
+
+{{/section}}
+{{#section 'js'}}
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.full.min.js"></script>
+  <script>
+     // Cài đặt datetimepicker
+  $('#txtDOB').datetimepicker({
+    timepicker: false,
+    format: 'd/m/Y H:i:s',
+    mask: true
+  });
+
+  </script>
+<script>
+  
+  // Event listeners for the buttons
+  document.getElementById("showDrafts").addEventListener("click", () => toggleSection("draftsSection", "showDrafts"));
+  document.getElementById("showDrafts2").addEventListener("click", () => toggleSection("drafts2Section", "showDrafts2"));
+  document.getElementById("showDrafts3").addEventListener("click", () => toggleSection("drafts3Section", "showDrafts3"));
+  document.getElementById("showDrafts4").addEventListener("click", () => toggleSection("drafts4Section", "showDrafts4"));
+
+
+  /**
+   * Toggles visibility of a section and updates the active button.
+   * @param {string} sectionId - The ID of the section to show.
+   * @param {string} buttonId - The ID of the button to highlight.
+   */
+  function toggleSection(sectionId, buttonId) {
+    // Hide all sections
+    const sections = document.querySelectorAll(".drafts-table");
+    sections.forEach(section => section.style.display = "none");
+
+    // Show the selected section
+    document.getElementById(sectionId).style.display = "block";
+
+    // Remove active state from all buttons
+    const buttons = document.querySelectorAll(".btn-group .btn");
+    buttons.forEach(button => {
+      button.classList.remove("btn-primary", "active");
+      button.classList.add("btn-secondary");
+    });
+
+    // Add active state to the clicked button
+    const activeButton = document.getElementById(buttonId);
+    activeButton.classList.add("btn-primary", "active");
+    activeButton.classList.remove("btn-secondary");
+  }
+  function approvePost(PostId) {
+  currentPostId = PostId; // Store the current Post ID
+  document.getElementById("approvalSection").style.display = "block"; // Show the approval section
+}
+
+// Confirm approval with selected options
+let currentPostId; // Variable to store the current post ID
+
+function approvePost(PostId) {
+  currentPostId = PostId; // Store the current Post ID
+  document.getElementById("approvalSection").style.display = "block"; // Show the approval section
+}
+
+// Confirm approval with selected options
+document.getElementById("confirmApprove").addEventListener("click", async () => {
+
+  const timePublic = document.getElementById("txtDOB").value; // Get the selected time
+  if (!timePublic) {
+    alert("Vui lòng chọn thời gian xuất bản.");
+    return;
+  }
+
+  try {
+    const response = await fetch("/editor/approve", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        PostID: currentPostId, // Use the stored Post ID
+  
+        TimePublic: timePublic, // Include the time public
+      }),
+    });
+
+    if (response.ok) {
+      alert("Bài viết đã được duyệt.");
+      location.reload(); // Refresh the page
+    } else {
+      const message = await response.text();
+      alert("Lỗi: " + message);
+    }
+  } catch (error) {
+    console.error("Error approving post:", error);
+    alert("Đã xảy ra lỗi khi duyệt bài viết.");
+  } finally {
+    document.getElementById("approvalSection").style.display = "none"; // Hide the approval section after processing
+
+    document.getElementById("timePublicSelect").value = ""; // Clear the date picker
+  }
+});
+ // Variable to store the current post ID
+
+function rejectPost(PostId) {
+  currentPostId = PostId; // Store the current Post ID
+  document.getElementById("rejectionReasonSection").style.display = "block"; // Show the rejection reason input
+}
+
+// Confirm rejection with reason
+document.getElementById("confirmReject").addEventListener("click", async () => {
+  const reason = document.getElementById("rejectionReason").value; // Get the reason from the input
+  if (!reason) {
+    alert("Vui lòng nhập lý do từ chối.");
+    return;
+  }
+
+  try {
+    const response = await fetch("/editor/reject", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        PostID: currentPostId, // Use the stored Post ID
+        reason: reason, // Include the reason
+      }),
+    });
+
+    if (response.ok) {
+      alert("Bài viết đã bị từ chối.",reason);
+      location.reload(); // Refresh the page
+    } else {
+      const message = await response.text();
+      alert("Lỗi: " + message);
+    }
+  } catch (error) {
+    console.error("Error denying post:", error);
+    alert("Đã xảy ra lỗi khi từ chối bài viết.");
+  } finally {
+    document.getElementById("rejectionReasonSection").style.display = "none"; // Hide the input section after processing
+    document.getElementById("rejectionReason").value = ""; // Clear the input
+  }
+});
+ function toggleSection(sectionId, buttonId) {
+       // Hide all sections
+       const sections = document.querySelectorAll(".drafts-table");
+       sections.forEach(section => section.style.display = "none");
+
+       // Show the selected section
+       document.getElementById(sectionId).style.display = "block";
+
+       // Remove active state from all buttons
+       const buttons = document.querySelectorAll(".btn-group .btn");
+       buttons.forEach(button => {
+           button.classList.remove("btn-primary", "active");
+           button.classList.add("btn-secondary");
+       });
+
+       // Add active state to the clicked button
+       const activeButton = document.getElementById(buttonId);
+       activeButton.classList.add("btn-primary", "active");
+       activeButton.classList.remove("btn-secondary");
+
+       // Hide the content section
+       hideContent();
+   }
+
+   function viewContent(button) {
+       const content = button.getAttribute("data-content"); // Retrieve the content from the data attribute
+
+       const contentSection = document.getElementById("selectedPostContent");
+       const contentDiv = document.getElementById("postContent");
+
+       if (content) {
+           // Decode and display the web-formatted content
+           contentDiv.innerHTML = content; // Use innerHTML to render HTML or rich text
+           contentSection.style.display = "block"; // Make the content section visible
+
+           // Scroll to the content section
+           contentSection.scrollIntoView({ behavior: 'smooth' });
+       } else {
+           contentDiv.textContent = "Không có nội dung.";
+           contentSection.style.display = "none";
+       }
+   }
+
+   function hideContent() {
+       const contentSection = document.getElementById("selectedPostContent");
+       const contentDiv = document.getElementById("postContent");
+
+       contentDiv.innerHTML = ""; // Clear content
+       contentSection.style.display = "none"; // Hide the section
+   }
+</script>
+{{/section}}
+<div class="card">
+  <h3 class="card-header text-center bg bg-info text-white">Danh sách bài viết</h3>
+  <div class="card-body p-0 pt-3">
+    <!-- Buttons to toggle between drafts -->
+<div class="btn-group">
+  <button id="showDrafts" class="btn btn-secondary w-100">
+    Bài viết chờ duyệt
+  </button>
+  <button id="showDrafts2" class="btn btn-secondary w-100">
+    Bài viết chờ xuất bản
+  </button>
+  <button id="showDrafts3" class="btn btn-secondary w-100">
+    Bài viết đã xuất bản
+  </button>
+  <button id="showDrafts4" class="btn btn-secondary w-100">
+    Bài viết bị từ chối
+  </button>
+</div>
+
+<!-- Drafts Section -->
+<div id="draftsSection" class="drafts-table">
+  {{#if drafts.length}}
+    <table style="border-collapse: collapse; width: 100%; border: 1px solid #ddd;">
+      <thead>
+        <tr style="background-color: #f2f2f2; text-align: center; vertical-align: middle;">
+          <th style="border: 1px solid #ddd; padding: 8px;">Tiêu đề</th>
+          <th style="border: 1px solid #ddd; padding: 8px;">Chuyên mục</th>
+          <th style="border: 1px solid #ddd; padding: 8px;">Tác giả</th>
+          <th style="border: 1px solid #ddd; padding: 8px;">Hành động</th>
+          <th style="border: 1px solid #ddd; padding: 8px;">Chi tiết</th>
+
+        </tr>
+      </thead>
+      <tbody>
+        {{#each drafts}}
+          <tr>
+            <td style="border: 1px solid #ddd; padding: 8px;">{{this.PostTitle}}</td>
+            <td style="border: 1px solid #ddd;text-align: center; padding: 8px;">{{this.CName}}</td>
+            <td style="border: 1px solid #ddd; text-align: center;padding: 8px;">{{this.UserName}}</td>
+            <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">
+              <button 
+                onclick="approvePost({{this.PostID}})" 
+                class="btn btn-success btn-sm">
+                Duyệt
+              </button>
+              <button 
+                onclick="rejectPost({{this.PostID}})" 
+                class="btn btn-danger btn-sm">
+                Từ chối
+              </button>
+
+            </td>
+            <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">
+              <button 
+                class="btn btn-info btn-sm" 
+                data-content="{{this.Content}}" 
+                onclick="viewContent(this)">
+                Xem nội dung
+              </button>
+            </td>
+          </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  {{else}}
+    <p>Không có bài viết nào cần duyệt.</p>
+  {{/if}}
+</div>
+
+<!-- Accepted Posts Section -->
+<div id="drafts2Section" class="drafts-table" style="display: none;">
+  <h3>Accepted Posts</h3>
+  {{#if drafts2.length}}
+    <table style="border-collapse: collapse; width: 100%; border: 1px solid #ddd;">
+      <thead>
+        <tr style="background-color: #f2f2f2; text-align: center; vertical-align: middle;">
+          <th style="border: 1px solid #ddd; padding: 8px;">Tiêu đề</th>
+          <th style="border: 1px solid #ddd; padding: 8px;">Chuyên mục</th>
+          <th style="border: 1px solid #ddd; padding: 8px;">Tác giả</th>
+          <th style="border: 1px solid #ddd; padding: 8px;">Chi tiết</th>
+
+        </tr>
+      </thead>
+      <tbody>
+        {{#each drafts2}}
+          <tr>
+            <td style="border: 1px solid #ddd; padding: 8px;">{{this.PostTitle}}</td>
+            <td style="border: 1px solid #ddd;text-align: center; padding: 8px;">{{this.CName}}</td>
+            <td style="border: 1px solid #ddd; text-align: center;padding: 8px;">{{this.UserName}}</td>
+            <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">
+              <button 
+                class="btn btn-info btn-sm" 
+                data-content="{{this.Content}}" 
+                onclick="viewContent(this)">
+                Xem nội dung
+              </button>
+            </td>
+          </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  {{else}}
+    <p>Không có bài viết nào đang đợi xuất bản</p>
+  {{/if}}
+</div>
+
+<!-- Exported Posts Section -->
+<div id="drafts3Section" class="drafts-table" style="display: none;">
+  <h3>Exported Posts</h3>
+  {{#if drafts3.length}}
+    <table style="border-collapse: collapse; width: 100%; border: 1px solid #ddd;">
+      <thead>
+        <tr style="background-color: #f2f2f2; text-align: center; vertical-align: middle;">
+          <th style="border: 1px solid #ddd; padding: 8px;">Tiêu đề</th>
+          <th style="border: 1px solid #ddd; padding: 8px;">Chuyên mục</th>
+          <th style="border: 1px solid #ddd; padding: 8px;">Tác giả</th>
+          <th style="border: 1px solid #ddd; padding: 8px;">Chi tiết</th>
+
+        </tr>
+      </thead>
+      <tbody>
+        {{#each drafts3}}
+          <tr>
+            <td style="border: 1px solid #ddd; padding: 8px;">{{this.PostTitle}}</td>
+            <td style="border: 1px solid #ddd;text-align: center; padding: 8px;">{{this.CName}}</td>
+            <td style="border: 1px solid #ddd; text-align: center;padding: 8px;">{{this.UserName}}</td>
+            <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">
+              <button 
+                class="btn btn-info btn-sm" 
+                data-content="{{this.Content}}" 
+                onclick="viewContent(this)">
+                Xem nội dung
+              </button>
+            </td>
+          </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  {{else}}
+    <p>Không có bài viết nào.</p>
+  {{/if}}
+</div>
+<!-- Rejected Posts Section -->
+<div id="drafts4Section" class="drafts-table" style="display: none;">
+  <h3>Bài viết bị từ chối</h3>
+  {{#if drafts4.length}}
+    <table style="border-collapse: collapse; width: 100%; border: 1px solid #ddd;">
+      <thead>
+        <tr style="background-color: #f2f2f2; text-align: center; vertical-align: middle;">
+          <th style="border: 1px solid #ddd; padding: 8px;">Tiêu đề</th>
+          <th style="border: 1px solid #ddd; padding: 8px;">Chuyên mục</th>
+          <th style="border: 1px solid #ddd; padding: 8px;">Tác giả</th>
+          <th style="border: 1px solid #ddd; padding: 8px;">Hành động</th>
+          <th style="border: 1px solid #ddd; padding: 8px;">Chi tiết</th>
+
+        </tr>
+      </thead>
+      <tbody>
+        {{#each drafts4}}
+          <tr>
+            <td style="border: 1px solid #ddd; padding: 8px;">{{this.PostTitle}}</td>
+            <td style="border: 1px solid #ddd;text-align: center; padding: 8px;">{{this.CName}}</td>
+            <td style="border: 1px solid #ddd; text-align: center;padding: 8px;">{{this.UserName}}</td>
+             <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">
+              <button 
+                onclick="approvePost({{this.PostID}})" 
+                class="btn btn-success btn-sm">
+                Duyệt
+              </button>
+            </td>
+            <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">
+              <button 
+                class="btn btn-info btn-sm" 
+                data-content="{{this.Content}}" 
+                onclick="viewContent(this)">
+                Xem nội dung
+              </button>
+            </td>
+          </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  {{else}}
+    <p>Không có bài viết nào bị từ chối.</p>
+  {{/if}}
+</div>
+<div id="selectedPostContent" style="margin-top: 20px; border: 1px solid #ddd; padding: 10px; display: none;">
+  <button onclick="hideContent()" class="btn btn-secondary btn-sm" style="float: right;">Ẩn</button>
+  <h3>Nội dung bài viết</h3>
+  <p id="postContent">Chưa có nội dung được chọn.</p>
+</div>
+<!-- Rejection Reason Input -->
+<div id="rejectionReasonSection" style="display: none; margin-top: 20px;">
+  <label for="rejectionReason">Lý do từ chối:</label>
+  <input type="text" name="rejectReason" id="rejectionReason" class="form-control" placeholder="Nhập lý do từ chối">
+  <button id="confirmReject" class="btn btn-danger mt-2">Xác nhận từ chối</button>
+</div>
+<!-- Premium and TimePublic Selection -->
+<div id="approvalSection" style="display: none; margin-top: 20px;">
+     <div class="form-group">
+        <label for="txtDOB">Ngày xuất bản</label>
+        <input type="text" class="form-control" id="txtDOB" name="raw_dob" required />
+      </div>
+  <button id="confirmApprove" class="btn btn-success mt-2">Xác nhận duyệt</button>
+</div>
+</div>
+  <div class="card-footer text-center">
+              © ecNewsPaper
+   </div>
+</div>

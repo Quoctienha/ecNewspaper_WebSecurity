@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags-->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+    <!-- Bootstrap icon -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!--Animation CSS-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    {{{_sections.css}}}
+    <title>ecNewsPaper</title>
+    <style>
+    .sidebar {
+      position: sticky;
+      top: 100px; /* Cố định vị trí khi cuộn */
+      height: calc(100vh - 100px); 
+      overflow-y: auto; /* Cuộn nội dung trong sidebar nếu dài */
+    }
+    .content {
+      margin-top: 100px; 
+    }
+  </style>
+  </head>
+  <body>
+    <!-- Navigation bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark shadow bg-primary fixed-top">
+      <a class="navbar-brand mr-5" href="/">
+        <i class="bi bi-house-door-fill"></i>
+        ecNewsPaper
+      </a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <!-- Search form -->
+        <form action="/posts/bySearch" method="GET" class="form-inline my-2 my-lg-0 col-8 p-0 mr-auto">
+          <input class="form-control mr-sm-2 col-12 col-lg-9" name="keyword" type="search" placeholder="Tìm kiếm bài viết..." aria-label="Search" required>
+          <button class="btn btn-outline-light my-2 my-sm-2" type="submit">
+            <b>
+              Tìm kiếm
+              <i class="bi bi-search"></i>
+            </b>
+          </button>
+        </form>
+        {{#if authUser.Permission}}
+        <!--editor-->
+        {{#if (Equal authUser.Permission 2)}}
+           <a href="/editor/drafts" class="btn btn-primary">Đến Draft</a>
+        {{/if}}
+        <!--Writer-->
+        {{#if (Equal authUser.Permission 1)}}
+            <ul class="navbar-nav">
+              <li class="nav-item active">
+                <a class="nav-link" href="/writer/add">Thêm bài viết</a>
+              </li>
+              <li class="nav-item dropdown active">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-expanded="false">
+                 Danh sách
+                </a>
+                <div class="dropdown-menu">
+                  <a class="dropdown-item" href="/writer?status=Chờ duyệt">Chờ duyệt</a>
+                  <a class="dropdown-item" href="/writer?status=Chờ xuất bản">Chờ xuất bản</a>
+                  <a class="dropdown-item" href="/writer?status=Đã xuất bản">Đã xuất bản</a>
+                  <a class="dropdown-item" href="/writer?status=Từ chối">Bị từ chối</a>
+                </div>
+              </li>
+           </ul>
+        {{/if}}
+        {{/if}}
+        <!-- (small screens) -->
+        <div class="d-block d-lg-none">
+           <!-- Admin -->
+          {{#if lcIsAdminPage}}
+          <ul class="navbar-nav">
+            <li class="nav-item active">
+              <a class="nav-link" href="/admin/categories">QL chuyên mục</a>
+            </li>
+            <li class="nav-item active">
+              <a class="nav-link" href="/admin/tags">QL nhãn</a>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle active" href="#" role="button" data-toggle="dropdown" aria-expanded="false">
+                QL bài viết
+              </a>
+              <div class="dropdown-menu">
+                <a class="dropdown-item" href="/admin/post/add">Thêm bài viết mới</a>
+                <a class="dropdown-item" href="/admin/post?status=Chờ xuất bản">Đã được duyệt & chờ xuất bản</a>
+                <a class="dropdown-item" href="/admin/post?status=Đã xuất bản">Đã xuất bản</a>
+                <a class="dropdown-item" href="/admin/post?status=Từ chối">Bị từ chối</a>
+                <a class="dropdown-item" href="/admin/post?status=Chờ duyệt">Chưa được duyệt</a>
+              </div>
+            </li>
+
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle active" href="#" role="button" data-toggle="dropdown" aria-expanded="false">
+                QL tài khoản
+              </a>
+              <div class="dropdown-menu">
+                <a class="dropdown-item" href="/admin/reader">độc giả</a>
+                <a class="dropdown-item" href="/admin/writer">phóng viên</a>
+                <a class="dropdown-item" href="/admin/editor">biên tập viên</a>
+              </div>
+            </li>
+          </ul>
+          {{/if}}
+          <!--Categories-->
+          <button class="btn btn-primary pl-0" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+            <i class="bi bi-bookmarks-fill"></i>
+            Chuyên mục
+          </button>
+          <div class="collapse" id="collapseExample">
+            <div class="card card-body p-0">
+              <div class="accordion" id="accordionCategories2">
+                {{#each lcCategories}}
+                  <div class="card bg-primary text-white">
+                    <div class="card-header" id="heading{{CID}}">
+                      <h2 class="mb-0 d-flex justify-content-between">
+                        <a href="/posts/byCategory?id={{CID}}" class="btn btn-lg btn-block active text-left text-white p-0" role="button" aria-pressed="true">{{CName}}</a>
+                        <button class="btn text-right text-white" type="button" data-toggle="collapse" data-target="#collapseCategories{{CID}}" aria-expanded="false" aria-controls="collapseCategories{{CID}}">
+                          <i class="bi bi-caret-down-fill"></i>
+                        </button>
+                      </h2>
+                    </div>
+                    <div id="collapseCategories{{CID}}" class="collapse" aria-labelledby="heading{{CID}}" data-parent="#accordionCategories2">
+                      <div class="list-group list-group-flush">
+                        {{#each subCategories}}
+                          <a href="/posts/bySubcategory?id={{SCID}}" class="list-group-item list-group-item-action">
+                            {{SCName}}
+                          </a>
+                        {{/each}}
+                      </div>
+                    </div>
+                  </div>
+                {{/each}}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sign up / Log in -->
+        <div class="dropdown-divider"></div>
+        <ul class="navbar-nav">
+            {{#if auth}}
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle active" href="#" role="button" data-toggle="dropdown" aria-expanded="false">
+                Xin Chào, <b>{{authUser.Fullname}}</b>
+              </a>
+              <div class="dropdown-menu">
+                {{#if (Equal authUser.Permission 3)}}
+                <a class="dropdown-item" href="/admin">
+                  <i class="bi bi-kanban-fill"></i>
+                  Trang quản trị
+                </a>
+                {{/if}}
+                <a class="dropdown-item" href="/account/profile">
+                  <i class="bi bi-person"></i>
+                  Hồ Sơ
+                </a>
+                <a class="dropdown-item" href="/account/doimatkhau">
+                  <i class="bi bi-shield-fill-plus"></i>
+                  Đổi Mật Khẩu
+                </a>
+                <div class="dropdown-divider"></div>
+                <form id="frmLogout" action="/account/logout" method="post"></form>
+                <a class="dropdown-item" href="javascript: $('#frmLogout').submit()">
+                  <i class="bi bi-box-arrow-right"></i>
+                  Đăng Xuất
+                </a>
+              </div>
+            </li>
+            {{else}}
+            <li class="nav-item">
+              <a class="nav-link active" href="/account/register">
+                <i class="bi bi-person-plus"></i>
+                Đăng Ký
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="/account/login">
+                <i class="bi bi-box-arrow-in-right"></i>
+                Đăng nhập
+              </a>
+            </li>
+            {{/if}}
+          </ul>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container-fluid content">
+      {{#if lcIsCenter}}
+      <div class="row d-flex justify-content-center animate__animated animate__fadeInDown"> 
+            <div class="col-sm-10">
+                {{{body}}}
+            </div>
+      </div>
+      {{else}}
+      <div class="row">
+        <!-- Main content area for xl screen -->
+        <div class="col-9 d-none d-xl-block p-0 animate__animated animate__fadeInDown" >
+          {{{body}}}
+        </div>
+        <!-- Main content area for lg screen-->
+        <div class="col-9 d-none d-lg-block d-xl-none p-0 animate__animated animate__fadeInDown" >
+          {{{body}}}
+        </div>
+        <!-- Main content area for smaller than lg screen-->   
+        <div class=" col-12 d-block d-lg-none p-0 animate__animated animate__fadeInDown">
+          {{{body}}}
+        </div>    
+
+        <!--sidebar-->
+        <div class="col-3 d-none d-lg-block sidebar">
+          <!--thanh quản lý của admin-->
+          {{#if lcIsAdminPage}}
+          <div class="card ">
+            <div class="card-header bg-info text-white">
+              <h4>
+                <i class="bi bi-kanban"></i>
+                Thanh quản lý
+              </h4>
+            </div>
+            <div class="card-body bg-light bg-light text-dark">
+              <ul class="nav flex-column ">
+                <!--Quản lý chuyên mục-->
+                <h5 class="pt-1">
+                  <i class="bi bi-bookmark"></i>
+                  Quản lý chuyên mục
+                </h5>
+                <li class="nav-item">
+                  <a class="nav-link text-dark" href="/admin/categories">Danh sách chuyên mục</a>
+                  <hr>
+                </li>
+                 <!--Quản lý nhãn-->
+                <h5>
+                  <i class="bi bi-tag"></i>
+                  Quản lý nhãn
+                </h5>
+                <li class="nav-item ">
+                  <a class="nav-link text-dark" href="/admin/tags">Danh sách nhãn</a>
+                  <hr>
+                </li>
+                 <!--Quản lý bài viết-->
+                 <h5>
+                  <i class="bi bi-newspaper"></i>
+                  Quản lý bài viết
+                </h5>
+                <li class="nav-item ">
+                  <a class="nav-link text-dark" href="/admin/post/add">Thêm bài viết mới</a>
+                </li>
+                <h6>Danh sách bài viết</h6>
+                <li class="nav-item ">
+                  <a class="nav-link text-dark" href="/admin/post?status=Chờ xuất bản">Đã được duyệt & chờ xuất bản</a>
+                </li>
+                <li class="nav-item ">
+                  <a class="nav-link text-dark" href="/admin/post?status=Đã xuất bản">Đã xuất bản</a>
+                </li>
+                <li class="nav-item ">
+                  <a class="nav-link text-dark" href="/admin/post?status=Từ chối">Bị từ chối</a>
+                </li>
+                <li class="nav-item ">
+                  <a class="nav-link text-dark" href="/admin/post?status=Chờ duyệt">Chưa được duyệt</a>
+                  <hr>
+                </li>
+                 <!--Quản lý bài viết-->
+                 <h5>
+                  <i class="bi bi-person"></i>
+                  Quản lý tài khoản
+                </h5>
+                <li class="nav-item ">
+                  <a class="nav-link text-dark" href="/admin/reader">Độc giả</a>
+                </li>
+                <li class="nav-item ">
+                  <a class="nav-link text-dark" href="/admin/writer">Phóng viên</a>
+                </li>
+                <li class="nav-item ">
+                  <a class="nav-link text-dark" href="/admin/editor">Biên tập viên</a>
+                </li>
+              </ul>
+            </div>
+            <div class="card-footer text-center">
+              © ecNewsPaper
+            </div>
+          </div>
+          {{else}}
+          <!--Categories for lg responsive-->
+          <div class="card">
+            <div class="card-header bg bg-info text-white" >
+              <h4>
+                <i class="bi bi-bookmarks-fill"></i>
+                Chuyên mục
+              </h4>
+            </div>
+            <div class="accordion border-0" id="accordionCategories">
+              {{#each lcCategories}}
+                <div class="card">
+                  <div class="card-header" id="heading{{CID}}">
+                    <h2 class="mb-0 d-flex justify-content-between">
+                      <a href="/posts/byCategory?id={{CID}}" class="btn btn-lg btn-block active text-left p-0" role="button" aria-pressed="true">{{CName}}</a>
+                      <button class="btn text-right" type="button" data-toggle="collapse" data-target="#collapseCategories{{CID}}" aria-expanded="false" aria-controls="collapseCategories{{CID}}">
+                        <i class="bi bi-caret-down-fill"></i>
+                      </button>
+                    </h2>
+                  </div>
+                  <div id="collapseCategories{{CID}}" class="collapse" aria-labelledby="heading{{CID}}" data-parent="#accordionCategories">
+                    <div class="list-group list-group-flush">
+                      {{#each subCategories}}
+                        <a href="/posts/bySubcategory?id={{SCID}}" class="list-group-item list-group-item-action">
+                          {{SCName}}
+                        </a>
+                      {{/each}}
+                    </div>
+                  </div>
+                </div>
+              {{/each}}
+            </div>
+          </div>
+          {{/if}}
+        </div>
+
+      </div>
+      {{/if}}
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js" integrity="sha384-+sLIOodYLS7CIrQpBjl+C7nPvqq+FbNUBDunl/OZv93DB7Ln/533i8e/mZXLi/P+" crossorigin="anonymous"></script>
+    {{{_sections.js}}}
+  </body>
+</html>

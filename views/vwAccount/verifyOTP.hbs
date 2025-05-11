@@ -1,0 +1,128 @@
+{{#section 'css'}}
+<style>
+     body {
+    background-color: #f8f9fa; /* Nền màu xám nhạt */
+    font-family: 'Poppins', sans-serif;
+  }
+
+  .card {
+    background-color: #ffffff;
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1); /* Đổ bóng */
+    border: none;
+  }
+
+  .btn-success {
+    background-color: #28a745;
+    border: none;
+  }
+
+  .btn-success:hover {
+    background-color: #218838; /* Màu đậm hơn khi hover */
+    transform: scale(1.02); /* Hiệu ứng lớn nhẹ */
+    transition: all 0.3s ease-in-out;
+  }
+
+  .form-control {
+    border: 2px solid #28a745;
+    font-size: 1.2rem;
+    letter-spacing: 3px;
+  }
+
+  .form-control:focus {
+    box-shadow: 0 0 0 0.2rem rgba(72, 180, 97, 0.25);
+    border-color: #218838;
+  }
+
+  .text-muted a:hover {
+    text-decoration: underline;
+  }
+
+  h3.card-title {
+    font-size: 1.8rem;
+  }
+</style>
+{{/section}}
+
+{{#section 'js'}}
+<script>
+ document.getElementById('resendOTPLink').addEventListener('click', function (e) {
+    e.preventDefault(); // Ngăn chuyển trang
+
+    // Gửi AJAX request đến route resendOTP
+    fetch('/account/resendOTP', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    })
+    .then(response => response.json())
+    .then(data => {
+      const resendMessage = document.getElementById('resendMessage');
+      if (data.success) {
+        resendMessage.innerHTML = `<p class="text-success">${data.message}</p>`;
+      } else {
+        resendMessage.innerHTML = `<p class="text-danger">${data.message}</p>`;
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      document.getElementById('resendMessage').innerHTML = `<p class="text-danger">An unexpected error occurred. Please try again.</p>`;
+    });
+  });
+</script>
+{{/section}}
+
+
+    
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-5">
+      <!-- Card Wrapper -->
+      <div class="card shadow-lg border-0 rounded-3">
+        <div class="card-body p-4">
+          <h3 class="card-title text-center mb-4 text-success fw-bold">Xác minh OTP</h3>
+          <p class="text-center text-muted mb-4">
+           Nhập mã OTP mà bạn nhập được qua email.
+          </p>
+
+          <!-- Form -->
+          <form method="POST" action="/account/verifyOTP">
+            <!-- OTP Input Field -->
+            <div class="mb-4 text-center">
+              <label for="otp" class="form-label fw-bold">Mã OTP </label>
+              <input 
+                type="text" 
+                name="otp" 
+                id="otp" 
+                class="form-control text-center border-success rounded-pill shadow-sm" 
+                placeholder="Nhập mã OTP có 6 chữ số"
+                maxlength="6"
+                required>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="d-grid gap-2">
+              <button type="submit" class="btn btn-success btn-lg btn-block rounded-pill">
+                Xác minh mã OTP
+              </button>
+            </div>
+
+            <!-- Message -->
+            {{#if message}}
+              <p class="text-center mt-3" style="color: red;">
+                {{message}}
+              </p>
+            {{/if}}
+          </form>
+
+          <!-- Additional Links -->
+          <div class="text-center mt-4">
+            <p class="text-muted">
+              Không nhập được mã OTP? 
+              <a href="/account/verifyOTP" id="resendOTPLink" class="text-decoration-none text-success fw-bold">Gửi lại OTP</a>
+            </p>
+            <div id="resendMessage" class="text-center mt-3"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,90 @@
+{{#section 'css'}}
+<style>
+    .btn:hover {
+        background-color: #218838; /* Màu xanh đậm hơn khi hover */
+        transform: scale(1.05); /* Tăng kích thước nhẹ */
+    }
+</style>
+{{/section}}
+
+{{#section 'js'}}
+<script>
+ $('#frmForgotPassword').on('submit', function (e) {
+  e.preventDefault(); // Ngăn hành vi mặc định của form
+
+  // Lấy giá trị từ trường email
+  const email = $('#email').val().trim();
+
+  if (email.length === 0) {
+    alert('Email is required.');
+    return;
+  }
+
+  if (!validateEmail(email)) {
+    alert('Please enter a valid email address.');
+    return;
+  }
+
+  // Kiểm tra email có trong cơ sở dữ liệu không
+  $.getJSON(`/account/is-email-available?email=${email}`, function (data) {
+    if (!data) {
+      alert('Email does not exist in our system.');
+      return;
+    }else {
+       // Nếu hợp lệ, submit form
+        $('#frmForgotPassword').off('submit').submit();
+    }
+  });
+});
+
+function validateEmail(email) {
+  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return regex.test(email);
+}
+
+</script>
+{{/section}}
+
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <!-- Card Wrapper -->
+      <div class="card shadow-lg border-0 rounded-3">
+        <div class="card-body p-4">
+          <h3 class="card-title text-center mb-4 text-primary">Quên Mật Khẩu</h3>
+          <p class="text-center text-muted mb-4">Xin hãy nhập địa chỉ email để đổi mật khẩu mới</p>
+
+          <!-- Form -->
+          <form id="frmForgotPassword" action="/account/quenmatkhau" method="POST">
+            <div class="mb-3">
+              <label for="email" class="form-label fw-bold">Địa chỉ email </label>
+              <input 
+                type="email" 
+                name="email" 
+                id="email" 
+                class="form-control border-primary shadow-sm" 
+                placeholder="Nhập địa chỉ email" 
+                required>
+            </div>
+            <div class="d-grid">
+              <button type="submit" class="btn btn-primary btn-lg btn-block">
+                Gửi mã OTP 
+              </button>
+            </div>
+          </form>
+
+          <!-- Divider -->
+          <hr class="my-4">
+
+          <!-- Help Link -->
+          <div class="text-center">
+            <a href="/account/login" class="text-decoration-none text-secondary">
+              Đăng nhập
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

@@ -1,0 +1,134 @@
+
+<!--The post's detail-->
+<div class="card">
+  <div class="card-header h5" id="topOfPost">
+  <i class="bi bi-ticket-detailed"></i>
+   Nội dung chi tiết của bài báo
+  </div>
+  <div class="card-body">
+    <img src="http://localhost:3030/static/imgs/posts/{{post.PostID}}/{{post.PostID}}_1.jpg" class="card-img-top " alt="...">
+    <h3 class="card-title mt-3">{{post.PostTitle}}</h3>
+    <p class="card-text"><small class="text-muted">Ngày công khai: {{post.TimePublic}}</small></p>
+    <p class="card-text h5">Chuyên Mục:
+      <a href="/posts/byCategory?id={{post.CID}}" class="badge badge-info ">{{post.CName}}</a>
+      <a href="/posts/bySubcategory?id={{post.SCID}}" class="badge badge-info ">{{post.SCName}}</a>
+    </p> 
+    <p class="card-text h6">
+      <i class="bi bi-tags"></i>Tags:
+      {{#each post.Tags}}
+      <a href="/posts/byTag?id={{TagID}}" class="badge badge-primary">{{TName}}</a>
+
+      {{/each}}
+   </p> 
+    <p>
+      Lượt xem: 
+      <i class="bi bi-eye-fill"></i>
+      {{post.view}}
+    </p>
+    <p class="card-text">{{{post.Content}}}</p>
+  </div>
+  <div class="card-footer">
+    <a href="/posts/downloadPDF?id={{post.PostID}}" class="btn btn-outline-success" role="button" aria-pressed="true">
+       Download PDF
+     <i class="bi bi-download"></i>
+    </a>
+  </div>
+</div>
+
+<!--Comment section-->
+<div class="card mt-3">
+  <h4 class="card-header bg-primary text-white">
+    <i class="bi bi-chat-left-text"></i>
+    Bình luận   
+  </h4>
+   <!--Write comments-->
+  <div class="card-body border border-black bg bg-light" style="height: 10rem;">
+    <form method="POST" action="/posts/addComment">
+      <input name="PostID" value="{{post.PostID}}" class="form-control mb-2" type="text"hidden>
+      <label class="h5" for="txtComment">Viết bình luận</label>
+      <div class="row">
+        <div class="col-sm-8">
+          <input id="txtComment" name="Comment" class="form-control mb-2" type="text" placeholder="Bình luận" required>
+        </div>
+        <div class="col-sm-4 ">
+          <button type="submit" class="btn btn-primary">
+            Đăng
+            <i class="bi bi-send"></i>
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+  <!--comments-->
+  <div class="card-body">
+    {{#if comments.length}}
+    {{#each comments}}
+    <div class="card m-3">
+  <div class="card-header d-flex justify-content-between">
+    <div class="h5">{{UName}}</div>
+    <div>
+      {{#if (Equal ../UserID UID)}}
+      <form method="POST" action="/posts/delComment">
+        <input name="ComID" value="{{ComID}}" class="form-control mb-2" type="text"hidden>
+        <input name="PostID" value="{{../post.PostID}}" class="form-control mb-2" type="text"hidden>
+        <button type="submit" class="btn btn-outline-danger">
+            <i class="bi bi-trash"></i>
+            Xoá
+          </button>
+      </form>
+      {{/if}}
+    </div>
+  </div>
+  <div class="card-body">
+    <blockquote class="blockquote mb-0">
+      <p>{{Comment}}</p>
+      <footer class="blockquote-footer">Ngày bình luận:<cite title="Source Title">{{Date}}</cite></footer>
+    </blockquote>
+  </div>
+    </div>
+    {{/each}}
+    {{else}}
+    <div class="alert alert-light text-center" role="alert">
+      <img class="alert-heading rounded" src="http://localhost:3030/static/imgs/ecNewsPaper_logo.png">
+      <h4>Để lại bình luận của bạn cho ecNewsPaper biết cảm nghĩ của bạn về bài viết nhé</h4>
+    </div>
+    
+
+    {{/if}}
+  </div>
+  <div class="card-footer d-flex justify-content-center">
+    {{#if needPagination}}
+   <nav aria-label="Page navigation example">
+  <ul class="pagination">
+    <!-- Nút Previous -->
+    <li class="page-item {{#if (Equal this.current_page 1)}}disabled{{/if}}">
+      <a class="page-link" 
+         href="/posts/detail?id={{post.PostID}}&page={{Decrement this.current_page}}" >
+        Previous
+      </a>
+    </li>
+      <!-- Các số trang -->
+      {{#each this.pageNumbers}}
+      {{#if active}}
+      <li class="page-item active">
+        <a class="page-link" href="#">{{value}}</a>
+      </li>
+      {{else}}
+      <li class="page-item">
+        <a class="page-link" href="/posts/detail?id={{../post.PostID}}&page={{value}}">{{value}}</a>
+      </li>
+      {{/if}}
+      {{/each}}
+      <!--Nút next-->
+      <li class="page-item {{#if (Equal this.current_page totalPages)}}disabled{{/if}}">
+      <a class="page-link" 
+         href="/posts/detail?id={{post.PostID}}&page={{Increment this.current_page}}" >
+        Next
+      </a>
+    </li>
+    </ul>
+</nav>
+    {{/if}}
+  </div>
+</div>
+
