@@ -85,6 +85,7 @@
 
           <!-- Form -->
           <form method="POST" action="/account/verifyOTP">
+          {{> csrf}}
             <!-- OTP Input Field -->
             <div class="mb-4 text-center">
               <label for="otp" class="form-label fw-bold">Mã OTP </label>

@@ -94,6 +94,7 @@ ClassicEditor.create(document.querySelector('#SumContentEditor'))
   <div class="card-body bg bg-light">
     <!-- Form for adding a new post -->
     <form method="POST" action="/admin/post/add" id="addPostForm">
+    {{> csrf}}
         <div class="form-group mb-2">
             <label for="PostTitle">Tiêu đề bài viết</label>
             <input type="text" name="PostTitle" id="PostTitle" class="form-control" required>

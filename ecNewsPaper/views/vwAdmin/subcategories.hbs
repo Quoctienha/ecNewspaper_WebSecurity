@@ -4,6 +4,7 @@
     <!-- Form thêm subcategory -->
     <h5>Thêm chuyên Mục con mới</h5>
     <form method="POST" action="/admin/categories/subcategories/add">
+    {{> csrf}}
         <div class="form-group mb-2">
             <label for="SCName">Tên Subcategory</label>
             <input type="hidden" name="cid" value="{{this.cid}}">
@@ -33,6 +34,7 @@
                 <td>
                     <!-- Form sửa subcategory -->
                     <form method="POST" action="/admin/categories/subcategories/edit" class="d-inline">
+                    {{> csrf}}
                         <input type="hidden" name="SCID" value="{{this.SCID}}">
                         <input type="hidden" name="cid" value="{{../cid}}">
                         <input type="text" name="SCName" value="{{this.SCName}}" class="form-control d-inline w-50">
@@ -44,6 +46,7 @@
 
                     <!-- Form xóa subcategory -->
                     <form method="POST" action="/admin/categories/subcategories/delete" class="d-inline">
+                    {{> csrf}}
                         <input type="hidden" name="SCID" value="{{this.SCID}}">
                         <input type="hidden" name="cid" value="{{../cid}}">
                         <button type="submit" class="btn btn-danger">

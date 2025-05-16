@@ -3,6 +3,8 @@ import { engine } from 'express-handlebars';
 import hbs_sections from 'express-handlebars-sections';
 import moment from 'moment';
 import session from 'express-session';
+//import cookieParser from 'cookie-parser';
+import csurf from 'csurf';
 
 //service
 import categoryService from './services/category.service.js';
@@ -31,9 +33,10 @@ import { ensureWriter } from './middlewares/auth.mdw.js';
 
 
 //Xác định thư mục hiện tại của tệp
-//import { dirname, format } from 'path';
-//import { fileURLToPath } from 'url';
-//const __dirname = dirname(fileURLToPath(import.meta.url));
+import path from 'path';
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 
 const app = express()
@@ -43,6 +46,7 @@ const port = 3030
 app.engine('hbs', engine({
   extname: 'hbs',
   defaultLayout: 'main_layout',
+  partialsDir: path.join(__dirname, 'views', 'partials'),
   helpers: {
     section: hbs_sections(),
 
@@ -78,6 +82,18 @@ app.use(session({
   saveUninitialized: true,
   //cookie: {}
 }));
+//app.use(cookieParser());
+// Thiết lập csurf, lưu token vào session
+const csrfProtection = csurf({ cookie: false });
+// Áp dụng cho tất cả các route POST/PUT/DELETE
+app.use(csrfProtection);
+
+// Mỗi lần render view sẽ có sẵn biến csrfToken
+app.use((req, res, next) => {
+  res.locals.csrfToken = req.csrfToken();
+  next();
+});
+
 // Middleware xử lý dữ liệu từ form (x-www-form-urlencoded)
 app.use(express.urlencoded({ extended: true }));
 
@@ -262,6 +278,17 @@ app.use('/403',function (req, res, next) {
   res.render('403', { layout: false });
 });
 
+app.use('/404',function (req, res, next) {
+  res.render('404', { layout: false });
+});
+
+app.use((err, req, res, next) => {
+  if (err.code === 'EBADCSRFTOKEN') {
+    // token không hợp lệ
+    return res.render('403', { layout: false});
+  }
+  next(err);
+});
 app.listen(port, function() {
   console.log(`ecNewsPaper app listening at http://localhost:${port}`)
 });

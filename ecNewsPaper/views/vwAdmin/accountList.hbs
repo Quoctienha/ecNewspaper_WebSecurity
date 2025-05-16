@@ -34,6 +34,7 @@
                     <!-- Form gia hạn cho độc giả -->
                     {{#if (Equal this.Permission 0)}}
                     <form method="POST" action="/admin/reader/extend" class="d-inline">
+                    {{> csrf}}
                         <input type="hidden" name="userID" value="{{this.UserID}}">
                         <button type="submit" class="btn btn-warning">
                             Gia hạn 7 ngày
@@ -52,6 +53,7 @@
 
                     <!-- Form xóa-->
                     <form method="POST" action="/admin/{{#if (Equal Permission 0)}}reader{{/if}}{{#if (Equal Permission 1)}}writer{{/if}}{{#if (Equal Permission 2)}}editor{{/if}}/delete" class="d-inline">
+                        {{> csrf}}
                         <input type="hidden" name="userID" value="{{this.UserID}}">
                         <button type="submit" class="btn btn-danger">
                             Xóa

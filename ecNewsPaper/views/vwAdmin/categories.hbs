@@ -4,6 +4,7 @@
     <!-- Form thêm danh mục -->
     <h5>Thêm chuyên mục mới</h5>
     <form method="POST" action="/admin/categories/add">
+      {{> csrf}}
         <div class="form-group mb-2">
             <label for="CName">Tên danh mục</label>
             <input type="text" name="CName" id="CName" class="form-control" required>
@@ -32,6 +33,7 @@
                 <td>
                     <!-- Form sửa danh mục -->
                     <form method="POST" action="/admin/categories/edit" class="d-inline">
+                    {{> csrf}}
                         <input type="hidden" name="CID" value="{{this.CID}}">
                         <input type="text" name="CName" value="{{this.CName}}" class="form-control d-inline w-50">
                         <button type="submit" class="btn btn-warning">
@@ -42,6 +44,7 @@
 
                     <!-- Form xóa danh mục -->
                     <form method="POST" action="/admin/categories/delete" class="d-inline">
+                    {{> csrf}}
                         <input type="hidden" name="CID" value="{{this.CID}}">
                         <button type="submit" class="btn btn-danger">
                             Xóa
@@ -51,6 +54,7 @@
 
                     <!-- Form chuyển sang danh mục subcategories -->
                     <form class="d-inline">
+                      {{> csrf}}
                         <a href="/admin/categories/subcategories?id={{CID}}" class="btn btn-link">
                             Chuyên mục phụ
                             <i class="bi bi-box-arrow-up-right"></i>

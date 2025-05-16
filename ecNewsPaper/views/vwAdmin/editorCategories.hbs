@@ -4,6 +4,7 @@
     <!-- Form thêm danh mục -->
     <h5>Thêm chuyên mục mới</h5>
     <form method="POST" action="/admin/editor/addCat">
+    {{> csrf}}
         <div class="form-group">
             <label for="exampleFormControlSelectCategory">Chọn chuyên mục</label>
             <input type="hidden" name="EID" value="{{editor.UserID}}">
@@ -37,6 +38,7 @@
                 <td>
                     <!-- Form xóa danh mục -->
                     <form method="POST" action="/admin/editor/delCat" class="d-inline">
+                    {{> csrf}}
                         <input type="hidden" name="CID" value="{{this.CID}}">
                         <input type="hidden" name="EID" value="{{../editor.UserID}}">
                         <button type="submit" class="btn btn-danger">

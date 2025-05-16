@@ -114,6 +114,7 @@
     <hr>
 
     <form method="POST" action="/writer/edit">
+    {{> csrf}}
         <input type="hidden" name="PostID" value="{{post.PostID}}">
 
         <div class="form-group mb-2">

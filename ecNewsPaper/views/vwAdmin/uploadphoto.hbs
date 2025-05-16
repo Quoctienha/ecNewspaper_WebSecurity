@@ -25,6 +25,7 @@
         </div>
         <div class="card-body">
             <form method="POST" action="/admin/post/uploadphoto" enctype="multipart/form-data">
+            {{> csrf}}
                 <!-- Hidden Input for Post ID -->
                 <input type="hidden" name="postID" value="{{postID}}">
 

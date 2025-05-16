@@ -16,6 +16,7 @@
         </a>
     </div>
     <form>
+        {{> csrf}}
         <div class="h4">
             Vai trò: 
             {{#if (Equal this.user.Permission 0)}}

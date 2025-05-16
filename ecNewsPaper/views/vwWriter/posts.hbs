@@ -102,6 +102,7 @@
                     <!-- Form to delete post -->
                     <form method="POST" action="/writer/delete" class="d-inline"
                         onsubmit="return confirm('Bạn có chắc muốn xóa bài viết này?');">
+                        {{> csrf}}
                         <input type="hidden" name="PostID" value="{{this.PostID}}">
                         <button type="submit" class="btn btn-danger">
                             Xóa

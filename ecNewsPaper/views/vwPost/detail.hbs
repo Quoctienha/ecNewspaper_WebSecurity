@@ -44,6 +44,7 @@
    <!--Write comments-->
   <div class="card-body border border-black bg bg-light" style="height: 10rem;">
     <form method="POST" action="/posts/addComment">
+    {{> csrf}}
       <input name="PostID" value="{{post.PostID}}" class="form-control mb-2" type="text"hidden>
       <label class="h5" for="txtComment">Viết bình luận</label>
       <div class="row">

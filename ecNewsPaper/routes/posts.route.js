@@ -209,6 +209,11 @@ router.get('/bySearch', async function(req, res) {
 router.get('/detail', async function (req, res) {
     const postId = req.query.id || 0;
     const post = await postService.findPostsByPostID(postId); 
+
+    if (!post) {
+      return res.redirect('/404');
+    }
+    
     let UserID = 0;
     if(req.session.authUser){
       UserID = req.session.authUser.UserID;

@@ -217,6 +217,7 @@ th {
                       {{#if (Stringcompare this.StatusPost "Chờ duyệt")}}
                               <form method="POST" action="/admin/post/delete" class="d-inline"
                               onsubmit="return confirm('Bạn có chắc muốn xóa bài viết này?');">
+                              {{> csrf}}
                               <input type="hidden" name="PostID" value="{{this.PostID}}">
                               <button type="submit" class="btn btn-danger">
                                 Xóa
@@ -239,6 +240,7 @@ th {
           
                            <form method="POST" action="/admin/post/delete" class="d-inline"
                               onsubmit="return confirm('Bạn có chắc muốn xóa bài viết này?');">
+                              {{> csrf}}
                               <input type="hidden" name="PostID" value="{{this.PostID}}">
                               <button type="submit" class="btn btn-danger">
                                 Xóa
