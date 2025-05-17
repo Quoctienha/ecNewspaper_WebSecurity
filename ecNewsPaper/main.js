@@ -44,46 +44,77 @@ const __dirname = path.dirname(__filename);
 const app = express()
 const port = 3030
 
-// Middleware tạo nonce cho mỗi request
-app.use((req, res, next) => {
-  res.locals.nonce = crypto.randomBytes(16).toString('base64'); // tạo nonce base64
-  next();
-});
 
 // Cấu hình helmet với CSP ở đây, sau middleware tạo nonce
+
+
+// ─── Strict CSP (replaces the old helmet(...) block) ───
+const cspDirectives = {
+  defaultSrc       : ["'self'"],
+  baseUri          : ["'self'"],
+  formAction       : ["'self'"],
+  frameAncestors   : ["'self'"],
+  
+  scriptSrc  : [
+    "'self'",
+    (req, res) => `'nonce-${res.locals.nonce}'`,
+    "https://cdn.jsdelivr.net",
+    "https://code.jquery.com",
+    "https://cdn.ckeditor.com",
+    "https://cdnjs.cloudflare.com"
+  ],
+  
+  styleSrc   : [
+    "'self'",
+    (req, res) => `'nonce-${res.locals.nonce}'`,
+    "https://fonts.googleapis.com",
+    "https://cdn.jsdelivr.net",
+    "https://cdnjs.cloudflare.com",
+    "https://stackpath.bootstrapcdn.com"
+  ],
+  
+  fontSrc    : [
+    "'self'",
+    "https://fonts.gstatic.com",
+    "https://cdn.jsdelivr.net"
+  ],
+  
+  imgSrc     : ["'self'"],          // if you *really* need data: URIs, make this ["'self'", "data:"] rather than wildcard
+  connectSrc : ["'self'"],
+  objectSrc  : ["'none'"],
+  
+  upgradeInsecureRequests: []       // keep browsers upgrading HTTP→HTTPS
+};
+// ─── Nonce middleware ───
+app.use((req, res, next) => {
+  res.locals.nonce = crypto.randomBytes(16).toString('base64');
+  next();
+});
+// put this once, very early
 app.use(
   helmet({
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"],
-        scriptSrc: [
-          "'self'",
-          (req, res) => `'nonce-${res.locals.nonce}'`, // cho phép script có nonce
-          "https://cdn.jsdelivr.net",
-          "https://code.jquery.com",
-          "https://cdn.ckeditor.com",
-          "https://cdnjs.cloudflare.com"
-        ],
-        styleSrc: [
-          "'self'",
-          (req, res) => `'nonce-${res.locals.nonce}'`, // cho phép style có nonce
-          "https://fonts.googleapis.com",
-          "https://cdnjs.cloudflare.com",
-          "https://cdn.jsdelivr.net",  // Thêm domain CDN bootstrap CSS
-          "https://stackpath.bootstrapcdn.com",
-        ],
-        fontSrc: ["'self'", 
-          "https://fonts.gstatic.com",
-          "https://cdn.jsdelivr.net" // Cho phép load font icon của bootstrap-icons
-        ], 
-        imgSrc: ["'self'", "data:", `http://localhost:${port}`],
-        connectSrc: ["'self'"],
-        objectSrc: ["'none'"],
-        upgradeInsecureRequests: [],
-      },
-    },
+    // turn off the built-in CSP so it doesn't overwrite yours
+    contentSecurityPolicy: false
   })
 );
+
+app.use(
+  helmet.contentSecurityPolicy({
+    useDefaults: false,               // ← prevents Helmet from re-adding its own defaults
+    directives: cspDirectives
+  })
+);
+app.use((req, res, next) => {
+  res.on('finish', () => {
+    console.log(
+      res.statusCode,
+      req.method,
+      req.originalUrl,
+      'CSP →', res.getHeader('Content-Security-Policy')
+    );
+  });
+  next();
+});
 
 app.engine('hbs', engine({
   extname: 'hbs',
@@ -123,11 +154,18 @@ app.set('trust proxy', 1); // trust first proxy
 // Cookie parser để đọc cookie (dùng cho csurf)
 //app.use(cookieParser());
 app.use(session({
-  secret: 'keyboard cat',
-  resave: false,
-  saveUninitialized: true,
-  //cookie: { secure: false } // true nếu dùng HTTPS
+  secret            : 'keyboard cat',
+  resave            : false,
+  saveUninitialized : false,
+  cookie : {
+    httpOnly : true,
+    sameSite : 'lax',   //  ← fixes ZAP warning
+    secure   : false    //  ← true when behind HTTPS
+  }
 }));
+console.log('★ session with SameSite=Lax LOADED from', __filename);
+
+
 
 
 // Middleware xử lý dữ liệu từ form (x-www-form-urlencoded)
@@ -321,8 +359,15 @@ app.use('/403',function (req, res, next) {
   res.render('403', { layout: false });
 });
 
-app.use('/404',function (req, res, next) {
-  res.render('404', { layout: false });
+app.use((req, res) => {
+  console.log('→ FINAL 404 HANDLER', req.originalUrl);
+  res.status(404).render('404', { layout: false });
+});
+
+
+app.use((req, res) => {
+  res.status(404);
+  res.render('404', { layout:false });
 });
 
 app.use((err, req, res, next) => {
