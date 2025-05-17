@@ -27,7 +27,9 @@ router.get("/drafts", async (req, res) => {
     res.render("vwEditor/drafts", {   drafts,
       drafts2,
       drafts3,
-      drafts4 });
+      drafts4,
+      csrfToken: req.csrfToken()
+    });
   } catch (error) {
     console.error("Error fetching draft posts:", error);
     res.status(500).send("An error occurred while fetching drafts.");

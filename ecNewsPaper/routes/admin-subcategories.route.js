@@ -16,7 +16,8 @@ router.get('/', async function (req, res) {
     res.render('vwAdmin/subcategories', {
         subcategories,
         categories,
-        cid : id
+        cid : id,
+        csrfToken: req.csrfToken()
     });
 });
 

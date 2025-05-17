@@ -33,7 +33,8 @@ router.get('/', async function (req, res) {
         current_page: current_page,
         totalPages: nPages,
         users: editors,
-        permission: 2
+        permission: 2,
+        csrfToken: req.csrfToken()
 
     });
 });
@@ -44,7 +45,8 @@ router.get('/profile', async function (req, res){
     writer.DayOfBirth =  moment(writer.DayOfBirth, 'DD/MM/YYYY').format('YYYY-MM-DD');
     writer.NgayDKPremium = moment(writer.NgayDKPremium , 'DD/MM/YYYY').format('YYYY-MM-DD HH:mm:ss'),
     res.render('vwAdmin/accountDetail', {
-        user: writer
+        user: writer,
+        csrfToken: req.csrfToken()
     });
     
 });
@@ -52,6 +54,7 @@ router.get('/profile', async function (req, res){
 //register
 router.get('/register', async function (req, res) {
     res.render('vwAccount/register',{
+        csrfToken: req.csrfToken()
     });
 });
 
@@ -107,7 +110,8 @@ router.get('/categories', async function (req, res) {
         totalPages: nPages,
         catNotManaged,
         categories,
-        editor
+        editor,
+        csrfToken: req.csrfToken()
     });
 });
 

@@ -29,7 +29,8 @@ router.get('/', async function (req, res) {
         needPagination: nPages > 1,
         current_page: current_page,
         totalPages: nPages,
-        tags
+        tags,
+        csrfToken: req.csrfToken()
     });
 });
 

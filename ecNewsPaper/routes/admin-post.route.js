@@ -54,11 +54,12 @@ router.get('/',  async (req, res) => {
         totalPages: nPages,
         status,
         posts,
-
-        userUID
+        userUID,
+        csrfToken: req.csrfToken()
     });
 
 });
+
 router.post('/edit',  async (req, res) => {
     try {
         let i;
@@ -120,13 +121,15 @@ router.get('/edit/:PostID',  async (req, res) => {
         return res.status(404).send('Post not found');
     }
 
-    res.render('vwAdmin/editPost', { post, categories, subcategories, tags,tagsSelected });
+    res.render('vwAdmin/editPost', { post, categories, subcategories, tags,tagsSelected, csrfToken: req.csrfToken() });
 });
+
 router.post('/delete',  async (req, res) => {
     const { PostID } = req.body;
     await postService.deletePost(PostID);
     res.redirect('/admin/post');
 });
+
 router.post("/approve", async (req, res) => {
   try {
     const { PostID ,TimePublic} = req.body; // Correctly extract PostID from req.body
@@ -143,6 +146,7 @@ router.post("/approve", async (req, res) => {
     res.status(500).send("Lỗi khi duyệt bài viết.");
   }
 });
+
 router.post("/reject", async (req, res) => {
   try {
     const { PostID ,reason } = req.body; // Correctly extract PostID from req.body
@@ -158,11 +162,12 @@ router.post("/reject", async (req, res) => {
     res.status(500).send("Lỗi khi từ chối bài viết.");
   }
 });
+
 router.get('/add',  async (req, res) => {
     const categories = await postService.findAllCategories();
     const subcategories = await postService.findAllSubcategories();
     const tags = await tagService.findAllTag();
-    res.render('vwAdmin/addPost', { categories, subcategories, tags });
+    res.render('vwAdmin/addPost', { categories, subcategories, tags, csrfToken: req.csrfToken() });
 });
 
 
@@ -217,7 +222,7 @@ router.get('/uploadphoto', auth, (req, res) => {
         return res.status(400).send('Post ID is required');
     }
 
-    res.render('vwAdmin/uploadphoto', { postID });
+    res.render('vwAdmin/uploadphoto', { postID, csrfToken: req.csrfToken() });
 });
 
 // Cấu hình multer
@@ -278,7 +283,7 @@ router.post('/uploadphoto', auth, upload.single('fuMain'), (req, res) => {
         const message = 'Có lỗi xảy ra khi upload ảnh. Vui lòng thử lại.';
 
         // Truyền message và postID lại vào view
-        res.render('vwAdmin/uploadphoto');
+        res.render('vwAdmin/uploadphoto', {csrfToken: req.csrfToken()});
     }
 });
 export default router;

@@ -3,7 +3,7 @@ import { engine } from 'express-handlebars';
 import hbs_sections from 'express-handlebars-sections';
 import moment from 'moment';
 import session from 'express-session';
-//import cookieParser from 'cookie-parser';
+import cookieParser from 'cookie-parser';
 import csurf from 'csurf';
 
 //service
@@ -42,7 +42,6 @@ const __dirname = path.dirname(__filename);
 const app = express()
 const port = 3030
 
-
 app.engine('hbs', engine({
   extname: 'hbs',
   defaultLayout: 'main_layout',
@@ -76,26 +75,26 @@ app.engine('hbs', engine({
 app.set('view engine', 'hbs');
 app.set('views', './views');
 app.set('trust proxy', 1); // trust first proxy
+
+// Cookie parser để đọc cookie (dùng cho csurf)
+//app.use(cookieParser());
 app.use(session({
   secret: 'keyboard cat',
   resave: false,
   saveUninitialized: true,
-  //cookie: {}
+  //cookie: { secure: false } // true nếu dùng HTTPS
 }));
-//app.use(cookieParser());
-// Thiết lập csurf, lưu token vào session
-const csrfProtection = csurf({ cookie: false });
-// Áp dụng cho tất cả các route POST/PUT/DELETE
-app.use(csrfProtection);
 
-// Mỗi lần render view sẽ có sẵn biến csrfToken
+
+// Middleware xử lý dữ liệu từ form (x-www-form-urlencoded)
+app.use(express.urlencoded({ extended: true }));
+
+app.use(csurf()); 
+// middleware truyền token ra locals
 app.use((req, res, next) => {
   res.locals.csrfToken = req.csrfToken();
   next();
 });
-
-// Middleware xử lý dữ liệu từ form (x-www-form-urlencoded)
-app.use(express.urlencoded({ extended: true }));
 
 //khai báo các đường dẫn cho tập tin tĩnh
 //http://localhost:3030/static/imgs/1.jpg

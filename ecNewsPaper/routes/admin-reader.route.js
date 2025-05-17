@@ -32,7 +32,8 @@ router.get('/', async function (req, res) {
         current_page: current_page,
         totalPages: nPages,
         users: readers,
-        permission: 0
+        permission: 0,
+        csrfToken: req.csrfToken()
 
     });
 });
@@ -44,7 +45,8 @@ router.get('/profile', async function (req, res){
     reader.NgayDKPremium = moment(reader.NgayDKPremium , 'DD/MM/YYYY').format('YYYY-MM-DD HH:mm:ss'),
     reader.NgayHHPremium = moment(reader.NgayHHPremium, 'DD/MM/YYYY').format('YYYY-MM-DD HH:mm:ss')
     res.render('vwAdmin/accountDetail', {
-        user: reader
+        user: reader,
+        csrfToken: req.csrfToken()
     });
     
 });
@@ -52,6 +54,7 @@ router.get('/profile', async function (req, res){
 //register
 router.get('/register', async function (req, res) {
     res.render('vwAccount/register',{
+        csrfToken: req.csrfToken()
     });
 });
 

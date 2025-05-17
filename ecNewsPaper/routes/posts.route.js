@@ -63,7 +63,8 @@ router.get('/bySubcategory', async function (req, res) {
     posts: posts,
     totalPages: nPages,
     catID: subCategoryId,
-    isBySubCat: true
+    isBySubCat: true,
+    csrfToken: req.csrfToken()
   });
 });
 
@@ -108,7 +109,8 @@ router.get('/byCategory', async function( req, res) {
     posts: posts,
     totalPages: nPages,
     catID: categoryId,
-    isBySubCat: false
+    isBySubCat: false,
+    csrfToken: req.csrfToken()
   });
 
   
@@ -156,6 +158,7 @@ router.get('/byTag', async function(req, res) {
     posts: posts,
     totalPages: nPages,
     TagID: tagID,
+    csrfToken: req.csrfToken()
   });
 
 });
@@ -200,7 +203,8 @@ router.get('/bySearch', async function(req, res) {
     current_page: current_page,
     posts: posts,
     totalPages: nPages,
-    keyword: keyword
+    keyword: keyword,
+    csrfToken: req.csrfToken()
   });
 
 });
@@ -262,7 +266,8 @@ router.get('/detail', async function (req, res) {
         needPagination: nPages > 1,
         totalPages: nPages,
         comments: comments,
-        UserID: UserID
+        UserID: UserID,
+        csrfToken: req.csrfToken()
         });
       });
     } 
@@ -275,7 +280,8 @@ router.get('/detail', async function (req, res) {
       needPagination: nPages > 1,
       totalPages: nPages,
       comments: comments,
-      UserID: UserID
+      UserID: UserID,
+      csrfToken: req.csrfToken()
       });
     }
     
@@ -284,6 +290,11 @@ router.get('/detail', async function (req, res) {
 //tăng view cho post
 router.get('/IncreaseView', async function( req, res) {
   const postId = req.query.id || 0;
+  const post = await postService.findPostsByPostID(postId); 
+
+  if (!post) {
+    return res.redirect('/404');
+  }
   //update view
   await postService.IncreaseView(postId);
    // Chuyển hướng tới trang chi tiết bài viết

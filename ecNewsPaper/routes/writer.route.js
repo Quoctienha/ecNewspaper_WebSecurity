@@ -56,7 +56,7 @@ router.get('/',  async (req, res) => {
         totalPages: nPages,
         status,
         posts,
-  
+        csrfToken: req.csrfToken()
     });
 
 });
@@ -69,7 +69,7 @@ router.get('/add',  async (req, res) => {
     const subcategories = await postService.findAllSubcategories();
     const tags = await tagService.findAllTag();
     console.log(tags);
-    res.render('vwWriter/addPost', { categories, subcategories, tags });
+    res.render('vwWriter/addPost', { categories, subcategories, tags, csrfToken: req.csrfToken() });
 });
 
 
@@ -124,7 +124,7 @@ router.get('/uploadphoto', auth, (req, res) => {
         return res.status(400).send('Post ID is required');
     }
 
-    res.render('vwWriter/uploadphoto', { postID });
+    res.render('vwWriter/uploadphoto', { postID,csrfToken: req.csrfToken() });
 });
 
 // Cấu hình multer
@@ -185,7 +185,7 @@ router.post('/uploadphoto', auth, upload.single('fuMain'), (req, res) => {
         const message = 'Có lỗi xảy ra khi upload ảnh. Vui lòng thử lại.';
 
         // Truyền message và postID lại vào view
-        res.render('vwWriter/uploadphoto');
+        res.render('vwWriter/uploadphoto', {csrfToken: req.csrfToken()});
     }
 });
 
@@ -252,7 +252,7 @@ router.get('/edit/:PostID',  async (req, res) => {
         return res.status(404).send('Post not found');
     }
 
-    res.render('vwWriter/editPost', { post, categories, subcategories, tags,tagsSelected });
+    res.render('vwWriter/editPost', { post, categories, subcategories, tags,tagsSelected,csrfToken: req.csrfToken() });
 });
 
 

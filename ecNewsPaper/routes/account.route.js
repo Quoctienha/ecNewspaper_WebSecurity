@@ -25,10 +25,12 @@ router.get('/is-available', async function(req, res){
 //Login
 router.get('/login', async function (req, res) {
   const message = req.query.message || false
+  //console.log('Token gửi về form:', req.csrfToken());
     res.render('vwAccount/login', {
       layout: 'account_layout',
       showErrors: false, // Reset errors on the GET request
-      message: message
+      message: message,
+      csrfToken: req.csrfToken()
     });
 });
 // Login route
@@ -38,7 +40,8 @@ router.post('/login', async function(req, res) {
   if (!user) {
       return res.render('vwAccount/login', {
           layout: 'account_layout',
-          showErrors: true
+          showErrors: true,
+          csrfToken: req.csrfToken()
       });
   }
 
@@ -46,7 +49,8 @@ router.post('/login', async function(req, res) {
   if (!bcrypt.compareSync(req.body.raw_password, user.Password_hash)) {
       return res.render('vwAccount/login', {
           layout: 'account_layout',
-          showErrors: true
+          showErrors: true,
+          csrfToken: req.csrfToken()
       });
   }
 
@@ -57,7 +61,8 @@ router.post('/login', async function(req, res) {
   if (currentDate.isAfter(expirationDate)) {
       return res.render('vwAccount/login', {
           layout: 'account_layout',     
-          message:true
+          message:true,
+          csrfToken: req.csrfToken()
       });
   }
   }
@@ -70,7 +75,6 @@ router.post('/login', async function(req, res) {
   // Clear retUrl if set, and redirect to the home page or wherever the user is supposed to go
   const retUrl = req.session.retUrl || '/';
   delete req.session.retUrl; // Xóa redirectUrl sau khi sử dụng
-  delete req.session.retUrl;  // Clear any stored redirection URL after the user logs in
   res.redirect(retUrl);
 });
 
@@ -78,7 +82,8 @@ router.post('/login', async function(req, res) {
 //register
 router.get('/register', async function (req, res) {
     res.render('vwAccount/register',{
-        layout: 'account_layout'
+        layout: 'account_layout',
+        csrfToken: req.csrfToken()
     });
 });
 
@@ -100,7 +105,8 @@ router.post('/register', async function(req, res){
 
     const ret = await userService.add(entity);
     res.render('vwAccount/login',{
-        layout: 'account_layout'
+        layout: 'account_layout',
+        csrfToken: req.csrfToken()
     });
 
 })
@@ -110,7 +116,8 @@ router.get('/profile', authPremium, function (req, res) {
     res.locals.lcIsCenter = true;
     res.render('vwAccount/profile', {
       //layout: 'account_layout',
-      user: req.session.authUser
+      user: req.session.authUser,
+      csrfToken: req.csrfToken()
     });
 });
 
@@ -119,7 +126,8 @@ router.get('/patch', async function(req, res){
   res.locals.lcIsCenter = true;
   res.render('vwAccount/editProfile', {
     //layout: 'account_layout',
-    user: req.session.authUser
+    user: req.session.authUser,
+    csrfToken: req.csrfToken()
   });
 });
 
@@ -143,7 +151,8 @@ router.post('/patch', async function(req, res){
 // Đổi mật khẩu - hiển thị form
 router.get('/doimatkhau', authPremium, async function (req, res) {
   res.render('vwAccount/doimatkhau', {
-      layout: 'account_layout'
+      layout: 'account_layout',
+      csrfToken: req.csrfToken()
   });
 });
 
@@ -155,7 +164,8 @@ router.post('/doimatkhau', authPremium, async function (req, res) {
   if (!bcrypt.compareSync(req.body.old_password, user.Password_hash)) {
       return res.render('vwAccount/doimatkhau', {
           layout: 'account_layout',
-          error: 'Mật khẩu cũ không chính xác.'
+          error: 'Mật khẩu cũ không chính xác.',
+          csrfToken: req.csrfToken()
       });
   }
 
@@ -163,7 +173,8 @@ router.post('/doimatkhau', authPremium, async function (req, res) {
   if (req.body.new_password !== req.body.confirm_password) {
       return res.render('vwAccount/doimatkhau', {
           layout: 'account_layout',
-          error: 'Mật khẩu mới và xác nhận không trùng khớp.'
+          error: 'Mật khẩu mới và xác nhận không trùng khớp.',
+          csrfToken: req.csrfToken()
       });
   }
 
@@ -173,7 +184,8 @@ router.post('/doimatkhau', authPremium, async function (req, res) {
 
   res.render('vwAccount/doimatkhau', {
       layout: 'account_layout',
-      success: 'Đổi mật khẩu thành công!'
+      success: 'Đổi mật khẩu thành công!',
+      csrfToken: req.csrfToken()
   });
 });
 
@@ -188,6 +200,7 @@ router.post('/logout', authPremium, function (req, res) {
 router.get('/quenmatkhau', function (req, res) {
     res.render('vwAccount/quenmatkhau', {
         layout: 'account_layout',
+        csrfToken: req.csrfToken()
     });
 });
   
@@ -247,7 +260,8 @@ router.post('/quenmatkhau', async function (req, res) {
       console.error('Error sending email:', err);
       res.render('vwAccount/quenmatkhau', {
         layout: 'account_layout',
-        message: 'Error sending email. Please try again later.'
+        message: 'Error sending email. Please try again later.',
+        csrfToken: req.csrfToken()
       });
     }
 });
@@ -264,7 +278,8 @@ router.get('/is-email-available', async function (req, res) {
 router.get('/verifyOTP', function (req, res) {
     res.render('vwAccount/verifyOTP', { 
         layout: 'account_layout',
-        message: null 
+        message: null,
+        csrfToken: req.csrfToken()
     }); // Trang nhập OTP
 });
   
@@ -275,7 +290,8 @@ router.post('/verifyOTP', function (req, res) {
     if (!sessionOtp) {
       return res.render('vwAccount/verifyOTP', { 
         layout: 'account_layout',
-        message: 'No OTP found. Please request again.' 
+        message: 'No OTP found. Please request again.',
+        csrfToken: req.csrfToken()
     });
     }
   
@@ -285,14 +301,16 @@ router.post('/verifyOTP', function (req, res) {
     if (Date.now() > expiresAt) {
       return res.render('vwAccount/verifyOTP', {
         layout: 'account_layout',
-        message: 'OTP has expired. Please request again.' 
+        message: 'OTP has expired. Please request again.',
+        csrfToken: req.csrfToken()
     });
     }
   
     if (otp !== code) {
       return res.render('vwAccount/verifyOTP', { 
         layout: 'account_layout',
-        message: 'Invalid OTP. Please try again.' 
+        message: 'Invalid OTP. Please try again.',
+        csrfToken: req.csrfToken()
     });
     }
   
@@ -369,7 +387,8 @@ router.get('/resetpassword', function (req, res) {
     }
     res.render('vwAccount/resetpassword', { 
         layout: 'account_layout',
-        message: null 
+        message: null,
+        csrfToken: req.csrfToken()
     });
 });
   
@@ -385,7 +404,8 @@ router.post('/resetpassword', async function (req, res) {
     if (password !== confirmPassword) {
       return res.render('vwAccount/resetpassword', { 
         layout: 'account_layout',
-        message: 'Passwords do not match.' 
+        message: 'Passwords do not match.',
+        csrfToken: req.csrfToken()
     });
     }
   
@@ -401,7 +421,8 @@ router.post('/resetpassword', async function (req, res) {
   
     res.render('vwAccount/resetpassword', { 
         layout: 'account_layout',
-        message: 'Password reset successfully!' 
+        message: 'Password reset successfully!',
+        csrfToken: req.csrfToken()
     });
 });
   

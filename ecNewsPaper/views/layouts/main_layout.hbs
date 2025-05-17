@@ -38,6 +38,7 @@
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <!-- Search form -->
         <form action="/posts/bySearch" method="GET" class="form-inline my-2 my-lg-0 col-8 p-0 mr-auto">
+          {{> csrf}}
           <input class="form-control mr-sm-2 col-12 col-lg-9" name="keyword" type="search" placeholder="Tìm kiếm bài viết..." aria-label="Search" required>
           <button class="btn btn-outline-light my-2 my-sm-2" type="submit">
             <b>
@@ -165,7 +166,7 @@
                   Đổi Mật Khẩu
                 </a>
                 <div class="dropdown-divider"></div>
-                <form id="frmLogout" action="/account/logout" method="post"></form>
+                <form id="frmLogout" action="/account/logout" method="post">{{> csrf}}</form>
                 <a class="dropdown-item" href="javascript: $('#frmLogout').submit()">
                   <i class="bi bi-box-arrow-right"></i>
                   Đăng Xuất
