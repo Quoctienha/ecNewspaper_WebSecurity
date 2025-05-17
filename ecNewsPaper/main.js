@@ -5,6 +5,8 @@ import moment from 'moment';
 import session from 'express-session';
 import cookieParser from 'cookie-parser';
 import csurf from 'csurf';
+import helmet from 'helmet';
+import crypto from 'crypto';
 
 //service
 import categoryService from './services/category.service.js';
@@ -42,6 +44,47 @@ const __dirname = path.dirname(__filename);
 const app = express()
 const port = 3030
 
+// Middleware tạo nonce cho mỗi request
+app.use((req, res, next) => {
+  res.locals.nonce = crypto.randomBytes(16).toString('base64'); // tạo nonce base64
+  next();
+});
+
+// Cấu hình helmet với CSP ở đây, sau middleware tạo nonce
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: [
+          "'self'",
+          (req, res) => `'nonce-${res.locals.nonce}'`, // cho phép script có nonce
+          "https://cdn.jsdelivr.net",
+          "https://code.jquery.com",
+          "https://cdn.ckeditor.com",
+          "https://cdnjs.cloudflare.com"
+        ],
+        styleSrc: [
+          "'self'",
+          (req, res) => `'nonce-${res.locals.nonce}'`, // cho phép style có nonce
+          "https://fonts.googleapis.com",
+          "https://cdnjs.cloudflare.com",
+          "https://cdn.jsdelivr.net",  // Thêm domain CDN bootstrap CSS
+          "https://stackpath.bootstrapcdn.com",
+        ],
+        fontSrc: ["'self'", 
+          "https://fonts.gstatic.com",
+          "https://cdn.jsdelivr.net" // Cho phép load font icon của bootstrap-icons
+        ], 
+        imgSrc: ["'self'", "data:", `http://localhost:${port}`],
+        connectSrc: ["'self'"],
+        objectSrc: ["'none'"],
+        upgradeInsecureRequests: [],
+      },
+    },
+  })
+);
+
 app.engine('hbs', engine({
   extname: 'hbs',
   defaultLayout: 'main_layout',
@@ -76,6 +119,7 @@ app.set('view engine', 'hbs');
 app.set('views', './views');
 app.set('trust proxy', 1); // trust first proxy
 
+
 // Cookie parser để đọc cookie (dùng cho csurf)
 //app.use(cookieParser());
 app.use(session({
@@ -90,7 +134,7 @@ app.use(session({
 app.use(express.urlencoded({ extended: true }));
 
 app.use(csurf()); 
-// middleware truyền token ra locals
+//middleware truyền token ra locals
 app.use((req, res, next) => {
   res.locals.csrfToken = req.csrfToken();
   next();

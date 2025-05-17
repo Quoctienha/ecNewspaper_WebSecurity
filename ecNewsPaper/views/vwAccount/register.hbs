@@ -93,7 +93,7 @@
   });
 
   function validateEmail(email) {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     return regex.test(email);
   }
 
@@ -131,15 +131,15 @@
       <h5>Thông tin đăng nhập (bắt buộc)</h5>
       <div class="form-group">
         <label for="txtUsername">Tên đăng nhập</label>
-        <input type="text" class="form-control" id="txtUsername" name="username" placeholder="Tên đăng nhập"/>
+        <input type="text" class="form-control" id="txtUsername" name="username" placeholder="Tên đăng nhập" required/>
       </div>
       <div class="form-group">
         <label for="txtPassword">Mật khẩu</label>
-        <input type="password" class="form-control" id="txtPassword" name="raw_password" placeholder="Mật khẩu"/>
+        <input type="password" class="form-control" id="txtPassword" name="raw_password" placeholder="Mật khẩu" required/>
       </div>
       <div class="form-group mb-5">
         <label for="txtConfirm">Xác nhận lại mật khẩu</label>
-        <input type="password" class="form-control" name="confirm_password" id="txtConfirm" placeholder="Nhập lại mật khẩu của bạn"/>
+        <input type="password" class="form-control" name="confirm_password" id="txtConfirm" placeholder="Nhập lại mật khẩu của bạn" required/>
       </div>
     <hr>
       <h5>Hồ sơ người dùng</h5>

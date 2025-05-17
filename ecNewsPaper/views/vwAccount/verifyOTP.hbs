@@ -84,7 +84,7 @@
           </p>
 
           <!-- Form -->
-          <form method="POST" action="/account/verifyOTP">
+          <form method="POST" action="/account/verifyOTP/confirm">
           {{> csrf}}
             <!-- OTP Input Field -->
             <div class="mb-4 text-center">
@@ -118,7 +118,7 @@
           <div class="text-center mt-4">
             <p class="text-muted">
               Không nhập được mã OTP? 
-              <a href="/account/verifyOTP" id="resendOTPLink" class="text-decoration-none text-success fw-bold">Gửi lại OTP</a>
+              <a href="/account/verifyOTP/confirm" id="resendOTPLink" class="text-decoration-none text-success fw-bold">Gửi lại OTP</a>
             </p>
             <div id="resendMessage" class="text-center mt-3"></div>
           </div>

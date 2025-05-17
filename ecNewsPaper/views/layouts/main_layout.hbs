@@ -13,7 +13,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     {{{_sections.css}}}
     <title>ecNewsPaper</title>
-    <style>
+    <!-- Style inline có nonce -->
+    <style nonce="{{nonce}}">
     .sidebar {
       position: sticky;
       top: 100px; /* Cố định vị trí khi cuộn */
@@ -166,11 +167,12 @@
                   Đổi Mật Khẩu
                 </a>
                 <div class="dropdown-divider"></div>
-                <form id="frmLogout" action="/account/logout" method="post">{{> csrf}}</form>
-                <a class="dropdown-item" href="javascript: $('#frmLogout').submit()">
-                  <i class="bi bi-box-arrow-right"></i>
-                  Đăng Xuất
-                </a>
+                <form id="frmLogout" action="/account/logout" method="post">
+                  {{> csrf}}
+                  <button type="submit" class="dropdown-item">
+                    <i class="bi bi-box-arrow-right"></i> Đăng Xuất
+                  </button>
+                </form>
               </div>
             </li>
             {{else}}

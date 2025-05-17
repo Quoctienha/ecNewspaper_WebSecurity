@@ -249,7 +249,7 @@ router.get('/edit/:PostID',  async (req, res) => {
     
 
     if (!post) {
-        return res.status(404).send('Post not found');
+        return res.redirect('/404');
     }
 
     res.render('vwWriter/editPost', { post, categories, subcategories, tags,tagsSelected,csrfToken: req.csrfToken() });

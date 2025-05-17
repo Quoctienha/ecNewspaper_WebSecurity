@@ -2,6 +2,7 @@ import express from 'express';
 import bcrypt from 'bcryptjs';
 import moment from 'moment';
 import nodemailer from 'nodemailer';
+import validator from 'validator';
 
 //middleware
 import auth from '../middlewares/auth.mdw.js';
@@ -15,6 +16,9 @@ const router = express.Router();
 //
 router.get('/is-available', async function(req, res){
     const username = req.query.username;
+    if (!username || typeof username !== 'string') {
+        return res.redirect('/404');
+    }
     const user = await userService.findByUsername(username);
     if(!user){
         return res.json(true);
@@ -30,12 +34,16 @@ router.get('/login', async function (req, res) {
       layout: 'account_layout',
       showErrors: false, // Reset errors on the GET request
       message: message,
-      csrfToken: req.csrfToken()
+      //csrfToken: req.csrfToken()
     });
 });
 // Login route
 router.post('/login', async function(req, res) {
-  const user = await userService.findByUsername(req.body.username);
+  const username = req.body.username;
+  if (!username || typeof username !== 'string') {
+        return res.redirect('/404');
+    }
+  const user = await userService.findByUsername(username);
 
   if (!user) {
       return res.render('vwAccount/login', {
@@ -44,9 +52,14 @@ router.post('/login', async function(req, res) {
           csrfToken: req.csrfToken()
       });
   }
+  const rawPassword = req.body.raw_password;
+    if (!rawPassword || typeof rawPassword !== 'string') {
+      // Xử lý lỗi, ví dụ trả về lỗi hoặc redirect
+      return res.status(400).send('Password is required and must be a string');
+    }
 
   // Check password
-  if (!bcrypt.compareSync(req.body.raw_password, user.Password_hash)) {
+  if (!bcrypt.compareSync(rawPassword, user.Password_hash)) {
       return res.render('vwAccount/login', {
           layout: 'account_layout',
           showErrors: true,
@@ -89,7 +102,12 @@ router.get('/register', async function (req, res) {
 
 router.post('/register', async function(req, res){
     const ymd_dob = moment(req.body.raw_dob, 'DD/MM/YYYY').format('YYYY-MM-DD');
-    const hash_password = bcrypt.hashSync(req.body.raw_password,8);
+    const rawPassword = req.body.raw_password;
+    if (!rawPassword || typeof rawPassword !== 'string') {
+      // Xử lý lỗi, ví dụ trả về lỗi hoặc redirect
+      return res.status(400).send('Password is required and must be a string');
+    }
+    const hash_password = bcrypt.hashSync(rawPassword,8);
     const entity={
         UserName: req.body.username,
         Password_hash: hash_password,
@@ -115,7 +133,7 @@ router.post('/register', async function(req, res){
 router.get('/profile', authPremium, function (req, res) {
     res.locals.lcIsCenter = true;
     res.render('vwAccount/profile', {
-      //layout: 'account_layout',
+      layout: 'account_layout',
       user: req.session.authUser,
       csrfToken: req.csrfToken()
     });
@@ -125,7 +143,7 @@ router.get('/profile', authPremium, function (req, res) {
 router.get('/patch', async function(req, res){
   res.locals.lcIsCenter = true;
   res.render('vwAccount/editProfile', {
-    //layout: 'account_layout',
+    layout: 'account_layout',
     user: req.session.authUser,
     csrfToken: req.csrfToken()
   });
@@ -193,7 +211,7 @@ router.post('/doimatkhau', authPremium, async function (req, res) {
 router.post('/logout', authPremium, function (req, res) {
     req.session.auth = false;
     req.session.authUser = null;
-    res.redirect(req.headers.referer);
+    res.redirect(req.headers.referer || '/');
 });
 
 //Quên mật khẩu
@@ -206,7 +224,15 @@ router.get('/quenmatkhau', function (req, res) {
   
 router.post('/quenmatkhau', async function (req, res) {
     const email = req.body.email;
+    const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!regex.test(email)) {
+      return res.redirect('/404');
+    }
+
     const user = await userService.findByEmail(email);
+    if (!user) {
+      return res.redirect('/404');
+    }
   
     const fullname = user.Fullname || 'User'; // Lấy Fullname, nếu không có thì mặc định là 'User'
   
@@ -216,8 +242,11 @@ router.post('/quenmatkhau', async function (req, res) {
       port: 587,
       secure: false, // true for port 465, false for other ports
       auth: {
-        user: 'tinntunn4ever@gmail.com', // Thay bằng email của bạn
-        pass: 'ilcdwnkkxunmolmy'   // Thay bằng mật khẩu ứng dụng (App Password)
+        //user: 'tinntunn4ever@gmail.com', // Thay bằng email của bạn
+        //pass: 'ilcdwnkkxunmolmy'   // Thay bằng mật khẩu ứng dụng (App Password)
+
+        user: 'appmusic112@gmail.com', // Thay bằng email của bạn
+        pass: 'svjjenshuatgfydk'   // Thay bằng mật khẩu ứng dụng (App Password)
       }
     });
   
@@ -238,7 +267,7 @@ router.post('/quenmatkhau', async function (req, res) {
     
     // Nội dung email
     const mailOptions = {
-      from: 'tinntunn4ever@gmail.com', // Địa chỉ email gửi
+      from: 'appmusic112@gmail.com', // Địa chỉ email gửi
       to: email,                    // Email người nhận
       subject: 'Forgot Password Assistance',
       html: `
@@ -268,6 +297,10 @@ router.post('/quenmatkhau', async function (req, res) {
   
 router.get('/is-email-available', async function (req, res) {
     const email = req.query.email;
+    const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$/;
+    if (!regex.test(email)) {
+      return res.redirect('/404');
+    }
     const user = await userService.findByEmail(email); // Tìm email trong cơ sở dữ liệu
     if (user) {
       return res.json(true); // Email tồn tại
@@ -283,8 +316,16 @@ router.get('/verifyOTP', function (req, res) {
     }); // Trang nhập OTP
 });
   
-router.post('/verifyOTP', function (req, res) {
+router.post('/verifyOTP/confirm', function (req, res) {
     const { otp } = req.body;
+    if (!/^\d{6}$/.test(otp)) {
+      return res.render('vwAccount/verifyOTP', {
+        layout: 'account_layout',
+        message: 'Invalid OTP format.',
+        csrfToken: req.csrfToken()
+      });
+    }
+
     const sessionOtp = req.session.otp;
   
     if (!sessionOtp) {
@@ -325,6 +366,9 @@ router.post('/resendOTP', async function (req, res) {
     const email = req.session.resetEmailsub; // Lấy email từ session
     console.log("Email to search:", email);
     const user = await userService.findByEmail(email);
+    if (!user) {
+      return res.redirect('/404');
+    }
   
     const fullname = user.Fullname || 'User'; // Lấy Fullname, nếu không có thì mặc định là 'User'
   

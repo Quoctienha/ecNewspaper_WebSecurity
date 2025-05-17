@@ -8,6 +8,7 @@ import fs from 'fs';
 import puppeteer from 'puppeteer';
 import { fileURLToPath } from 'url';
 import { decode } from 'html-entities'; 
+import validator from 'validator';
 
 
 //middlewares
@@ -22,8 +23,16 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 router.get('/bySubcategory', async function (req, res) {
-  const subCategoryId = req.query.id || 0;
+  const subCategoryId = parseInt(req.query.id) || 0;
+  if (!subCategoryId || subCategoryId <= 0) {
+    return res.redirect('/404');
+  }
   const subCategory = await categoryService.findSubCategoriesBySCID(subCategoryId);
+  if (!subCategory) {
+    return res.redirect('/404');
+  }
+
+
   const nRows = await postService.countBySubCatId(subCategoryId);
   const limit = parseInt(2);
   const nPages = Math.ceil(nRows.total / limit);
@@ -69,8 +78,15 @@ router.get('/bySubcategory', async function (req, res) {
 });
 
 router.get('/byCategory', async function( req, res) {
-  const categoryId = req.query.id || 0;
+  const categoryId = parseInt(req.query.id) || 0;
+  if (!categoryId || categoryId <= 0) {
+      return res.redirect('/404');
+    }
   const category = await categoryService.findCategoriesByCID(categoryId);
+  if (!category) {
+    return res.redirect('/404');
+  }
+
   const nRows = await postService.countByCatId(categoryId);
   const limit = parseInt(2);
   const nPages = Math.ceil(nRows.total / limit);
@@ -117,8 +133,14 @@ router.get('/byCategory', async function( req, res) {
 });
 
 router.get('/byTag', async function(req, res) {
-  const tagID = req.query.id || 0;
+  const tagID = parseInt(req.query.id) || 0;
+   if (!tagID || tagID <= 0) {
+      return res.redirect('/404');
+    }
   const tag = await tagService.findTagBytagID(tagID);
+  if (!tag) {
+    return res.redirect('/404');
+  }
   const nRows = await tagService.countByTagId(tagID);
   const limit = parseInt(2);
   const nPages = Math.ceil(nRows.total / limit);
@@ -139,6 +161,9 @@ router.get('/byTag', async function(req, res) {
   }
 
   const posts = await tagService.findPostByTagID(tagID, limit, offset);
+  if (!posts) {
+    return res.redirect('/404');
+  }
   for (let post of posts) {
     // Định dạng thời gian cho từng post
     post.TimePublic = moment(post.TimePublic).format('DD/MM/YYYY HH:mm:ss');
@@ -164,7 +189,14 @@ router.get('/byTag', async function(req, res) {
 });
 
 router.get('/bySearch', async function(req, res) {
-  const keyword = req.query.keyword;
+  let keyword = req.query.keyword || '';
+
+   if (!keyword || !keyword.trim()) {
+    return res.status(400).json({ error: 'Keyword is required' });
+  }
+  // Sanitize keyword tránh HTML + SQL injection cơ bản
+  keyword = validator.escape(keyword.trim());
+
   const nRows = await postService.countBySearch(keyword);
   const limit = parseInt(2);
   const nPages = Math.ceil(nRows.total / limit);
@@ -204,14 +236,17 @@ router.get('/bySearch', async function(req, res) {
     posts: posts,
     totalPages: nPages,
     keyword: keyword,
-    csrfToken: req.csrfToken()
+    //csrfToken: req.csrfToken()
   });
 
 });
 
 //Note: không gọi trực tiếp /detail nếu không cần thiết, gọi /IncreaseView để tăng view cho post
 router.get('/detail', async function (req, res) {
-    const postId = req.query.id || 0;
+    const postId = parseInt(req.query.id) || 0;
+    if (!postId || postId <= 0) {
+      return res.redirect('/404');
+    }
     const post = await postService.findPostsByPostID(postId); 
 
     if (!post) {
@@ -289,7 +324,10 @@ router.get('/detail', async function (req, res) {
 
 //tăng view cho post
 router.get('/IncreaseView', async function( req, res) {
-  const postId = req.query.id || 0;
+  const postId = parseInt( req.query.id) || 0;
+  if (!postId || postId <= 0) {
+    return res.redirect('/404');
+  }
   const post = await postService.findPostsByPostID(postId); 
 
   if (!post) {
@@ -304,9 +342,18 @@ router.get('/IncreaseView', async function( req, res) {
 //Comment
 //thêm comment
 router.post('/addComment',authPremium, async function(req, res) {
-  const PostID = req.body.PostID;
+  const PostID = parseInt(req.body.PostID) || 0;
+  if (!PostID || PostID <= 0) {
+    return res.redirect('/404');
+  }
+  const post = await postService.findPostsByPostID(PostID); 
+
+  if (!post) {
+    return res.redirect('/404');
+  }
   const UID = req.session.authUser.UserID; // Lấy ID người dùng từ session
-  const Comment = req.body.Comment?.trim(); // Loại bỏ khoảng trắng thừa
+  let Comment = (req.body.Comment || '').trim(); // Loại bỏ khoảng trắng thừa
+  Comment = validator.escape(Comment); // sanitizedComment
 
   // Lấy thời gian hiện tại với moment
   const Date = moment().format('YYYY-MM-DD HH:mm:ss');
@@ -318,22 +365,34 @@ router.post('/addComment',authPremium, async function(req, res) {
 });
 
 router.get('/addComment', async function(req, res) {
-  res.redirect(`/posts/detail?id=${req.query.PostID}`);
+  const postId = parseInt(req.query.PostID) || 0;
+  if (!postId || postId <= 0) {
+    return res.redirect('/404');
+  }
+  res.redirect(`/posts/detail?id=${postId}`);
 });
 
 //Xoá
 router.post('/delComment', async function (req, res) {
-  await commentService.delete(req.body.ComID);
+  const ComID = parseInt(req.body.ComID) || 0;
+  const postID = parseInt(req.body.PostID) || 0;
+  if (!ComID || ComID <= 0 || !postID || postID <= 0) {
+    return res.redirect('/404');
+  }
+  await commentService.delete(ComID);
   res.redirect(`/posts/detail?id=${req.body.PostID}`);
 });
 
 router.get('/downloadPDF',authPremium, async function (req, res){
-  const postId = req.query.id || 0;
+  const postId = parseInt(req.query.id) || 0;
+  if (!postId || postId <= 0) {
+    return res.redirect('/404');
+  }
   req.session.retUrl = `/posts/detail?id=${postId}`;
   // Fetch the post by ID
   const post = await postService.findPostsByPostID(postId);
   if (!post) {
-    return res.status(404).send('Post not found');
+    return res.redirect('/404');
   }
 
   // Decode HTML entities in content
