@@ -6,7 +6,7 @@
    Nội dung chi tiết của bài báo
   </div>
   <div class="card-body">
-    <img src="http://localhost:3030/static/imgs/posts/{{post.PostID}}/{{post.PostID}}_1.jpg" class="card-img-top " alt="...">
+    <img src="{{baseUrl}}/static/imgs/posts/{{post.PostID}}/{{post.PostID}}_1.jpg" class="card-img-top " alt="...">
     <h3 class="card-title mt-3">{{post.PostTitle}}</h3>
     <p class="card-text"><small class="text-muted">Ngày công khai: {{post.TimePublic}}</small></p>
     <p class="card-text h5">Chuyên Mục:
@@ -28,10 +28,17 @@
     <p class="card-text">{{{post.Content}}}</p>
   </div>
   <div class="card-footer">
-    <a href="/posts/downloadPDF?id={{post.PostID}}" class="btn btn-outline-success" role="button" aria-pressed="true">
+   {{#if UserID}}
+    <a href="/posts/downloadPDF?id={{encodeURIComponent post.PostID}}" class="btn btn-outline-success" role="button" aria-pressed="true">
        Download PDF
      <i class="bi bi-download"></i>
     </a>
+    {{else}}
+     <span class="btn btn-outline-success disabled" role="button" aria-pressed="true">
+       Download PDF
+     <i class="bi bi-download"></i>
+    </span>
+    {{/if}}
   </div>
 </div>
 
@@ -52,10 +59,16 @@
           <input id="txtComment" name="Comment" class="form-control mb-2" type="text" placeholder="Bình luận" required>
         </div>
         <div class="col-sm-4 ">
+          {{#if UserID}}
           <button type="submit" class="btn btn-primary">
             Đăng
             <i class="bi bi-send"></i>
           </button>
+          {{else}}
+            <button type="submit" class="btn btn-primary" disabled>
+            Đăng
+            <i class="bi bi-send"></i>
+          {{/if}}
         </div>
       </div>
     </form>
@@ -90,7 +103,7 @@
     {{/each}}
     {{else}}
     <div class="alert alert-light text-center" role="alert">
-      <img class="alert-heading rounded" src="http://localhost:3030/static/imgs/ecNewsPaper_logo.png">
+      <img class="alert-heading rounded" src="{{baseUrl}}/static/imgs/ecNewsPaper_logo.png">
       <h4>Để lại bình luận của bạn cho ecNewsPaper biết cảm nghĩ của bạn về bài viết nhé</h4>
     </div>
     

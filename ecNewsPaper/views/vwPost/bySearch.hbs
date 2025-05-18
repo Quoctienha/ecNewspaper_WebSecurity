@@ -13,7 +13,7 @@
             <div class="card mb-3" >
               <div class="row no-gutters">
                 <div class="col-sm-4">
-                  <img class="img-fluid" src="http://localhost:3030/static/imgs/posts/{{PostID}}/{{PostID}}_1.jpg" alt="{{PostTitle}}" >
+                  <img class="img-fluid" src="{{baseUrl}}/static/imgs/posts/{{PostID}}/{{PostID}}_1.jpg" alt="{{PostTitle}}" >
                 </div>
                 <div class="col-sm-8">
                   <div class="card-body text-left">
@@ -39,7 +39,7 @@
                             {{/each}}
 
                           </p>  
-                    <p class="card-text">{{SumContent}}</p>
+                    <p class="card-text">{{{SumContent}}}</p>
                     <p class="card-text"><small class="text-muted">Ngày công khai: {{TimePublic}}</small></p>
                   </div>
                 </div>
