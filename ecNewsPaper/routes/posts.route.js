@@ -380,41 +380,51 @@ router.post('/delComment', async function (req, res) {
     return res.redirect('/404');
   }
   await commentService.delete(ComID);
-  res.redirect(`/posts/detail?id=${req.body.PostID}`);
+  res.redirect(`/posts/detail?id=${postID}`);
 });
 
-router.get('/downloadPDF',authPremium, async function (req, res){
-  const postId = parseInt(req.query.id) || 0;
-  if (!postId || postId <= 0) {
-    return res.redirect('/404');
+router.get('/downloadPDF', authPremium, async function (req, res) {
+  // 1. Validate ID strictly as a positive integer
+  if (!validator.isInt(req.query.id + '', { min: 1 })) {
+    return res.status(400).send('Invalid post ID');
   }
-  req.session.retUrl = `/posts/detail?id=${postId}`;
-  // Fetch the post by ID
+  const postId = Number(req.query.id);
+
+  // 2. Fetch the post and bail if missing
   const post = await postService.findPostsByPostID(postId);
   if (!post) {
     return res.redirect('/404');
   }
 
-  // Decode HTML entities in content
+  // 3. Decode content and format time
   post.Content = decode(post.Content);
-
-  // Format the post's public time
   post.TimePublic = moment(post.TimePublic).format('DD/MM/YYYY HH:mm:ss');
 
-  // Fetch the tags for the post
+  // 4. Load tags
   const tags = await tagService.findTagByPostID(post.PostID);
-  post.Tags = tags.map(tag => ({
-    TagID: tag.TagID,
-    TName: tag.TName,
-  }));
+  post.Tags = tags.map(tag => ({ TagID: tag.TagID, TName: tag.TName }));
 
-  // Read the image as base64
-  const imagePath = path.resolve(__dirname, `../static/imgs/posts/${post.PostID}/${post.PostID}_1.jpg`);
+  // 5. Build a filesystem path (no URL here!)
+  const imagePath = path.join(
+    __dirname,      // .../routes
+    '..',           // up to project root
+    'static',
+    'imgs',
+    'posts',
+    String(postId),
+    `${postId}_1.jpg`
+  );
 
-  const imageBase64 = fs.readFileSync(imagePath, 'base64');
+  // 6. Read the image or 404
+  let imageBase64;
+  try {
+    imageBase64 = fs.readFileSync(imagePath, 'base64');
+  } catch (err) {
+    return res.status(404).send('Post image not found');
+  }
   const imageSrc = `data:image/jpg;base64,${imageBase64}`;
 
-  // HTML Content for the main PDF
+  // 7. Generate PDF via Puppeteer
   const htmlContent = `
     <html>
       <head>
@@ -425,12 +435,11 @@ router.get('/downloadPDF',authPremium, async function (req, res){
         </style>
       </head>
       <body>
-        <!-- Embed the image as base64 -->
-        <img src="${imageSrc}" alt="Post image" style="max-width:100%; height:auto; margin-top: 20px;">
+        <img src="${imageSrc}" style="max-width:100%;height:auto;margin-top:20px;">
         <h1>${post.PostTitle}</h1>
         <p class="info">Ngày công khai: ${post.TimePublic}</p>
         <p class="info">Chuyên mục: ${post.CName} > ${post.SCName}</p>
-        <p class="info">Tags: ${post.Tags.map(tag => tag.TName).join(', ')}</p>
+        <p class="info">Tags: ${post.Tags.map(t=>t.TName).join(', ')}</p>
         <p class="info">Tóm tắt:</p>
         <div>${post.SumContent}</div>
         <hr>
@@ -440,31 +449,20 @@ router.get('/downloadPDF',authPremium, async function (req, res){
   `;
 
   try {
-    // Launch Puppeteer
     const browser = await puppeteer.launch();
-    const page = await browser.newPage();
-
-    // Generate the PDF with the HTML content (including base64 image)
+    const page    = await browser.newPage();
     await page.setContent(htmlContent, { waitUntil: 'load' });
-    const pdfBuffer = await page.pdf({
-      format: 'A4',
-      printBackground: true,
-    });
-
-    // Close Puppeteer
+    const pdfBuffer = await page.pdf({ format: 'A4', printBackground: true });
     await browser.close();
 
-    // Set headers for downloading the PDF
     res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename=ecNewsPaper_post_${post.PostID}.pdf`);
-
-    // Send the PDF buffer
+    res.setHeader('Content-Disposition', `attachment; filename=post_${postId}.pdf`);
     res.end(pdfBuffer);
-
-  } catch (error) {
-    console.error('Error generating PDF with Puppeteer:', error);
+  } catch (err) {
+    console.error(err);
     res.status(500).send('Error generating PDF');
   }
 });
+
 
 export default router;
